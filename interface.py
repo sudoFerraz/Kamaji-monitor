@@ -122,12 +122,20 @@ print "\n"
 print "\n"
 print "[+] Sinais Ativos [+]"
 print "\n"
-table = PrettyTable(["Signal name", "Active"])
+table = PrettyTable(["Signal name", "Active", "Porcentagem de relevancia"])
 table.align["Signal name"] = "1"
 table.padding_width = 1
-table.add_row(["Bollinger Band UB", bollinger_up_signal])
-table.add_row(["Bollinger Band LB", bollinger_low_signal])
-table.add_row(["MACD Histogram", macd_histogram_signal])
-table.add_row(["MACD Cross", macd_signal])
-table.add_row(["Relative Strength Index", rsi6_signal])
+table.add_row(["Bollinger Band UB", bollinger_up_signal, bollinger_up_signal])
+table.add_row(["Bollinger Band LB", bollinger_low_signal, bollinger_low_signal])
+table.add_row(["MACD Histogram", macd_histogram_signal, macd_histogram_signal])
+table.add_row(["MACD Cross", macd_signal, macd_signal])
+table.add_row(["Relative Strength Index", rsi6_signal, rsi6_signal])
+
+if bollinger_up_signal and bollinger_low_signal and macd_histogram_signal and macd_signal and rsi6_signal:
+    buy = Figlet(font='contessa')
+    print buy.renderText('Good Buy')
+else:
+    hold = Figlet(font='mini')
+    print hold.renderText('Not a Good Buy')
+print "\n"
 print table

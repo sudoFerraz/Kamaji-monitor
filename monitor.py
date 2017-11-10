@@ -358,9 +358,7 @@ while True:
     #py.offline.plot(data, filename='Updated_historical')
     #plt.plot(macd)
     #plt.plot(macd_signal_line)
-    plt.plot(up_bollinger)
-    plt.plot(low_bollinger)
-    plt.plot(boll)
-    plt.savefig('bollinger_bands.png')
+    plt.plot(close_price)
+    plt.savefig('close_price.png')
         #print a
     time.sleep(60)
