@@ -248,6 +248,34 @@ class action_handler(object):
                 return False
         return found_actions
 
+class strategy_handler(object):
+    def create_strategy(self, session, indicator_id, min_days, new_accuracy):
+        new_strategy = model.Strategy(indicator=indicator_id, days_past=min_days, accuracy=new_accuracy)
+        session.rollback()
+        session.add(new_strategy)
+        session.commit()
+        session.flush()
+        return new_strategy
+
+
+
+    def delete_strategy(self, session, indicator_id):
+        deleted_strategy = session.query(Strategy).filter_by(indicator=indicator_id).delete()
+        session.commit()
+        session.flush()
+
+    def update_strategy(self, session, indicator_id, new_min_days, new_accuracy):
+        found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
+        if not found_strategy:
+            return False
+        if found_strategy:
+            found_strategy.days_past = new_min_days
+            found_strategy.accuracy = new_accuracy
+            session.commit()
+            session.flush()
+            return found_strategy
+
+
 class graph_storage(object):
 
     def create_csv(self, session, newcsv_file, newcsv_name):

@@ -81,9 +81,9 @@ class Indicator(Base):
 class Strategy(Base):
     __tablename__ = "Strategy"
     id = Column(Integer, primary_key=True)
-    indicators = Column(Integer, ForeignKey(Indicator.id))
-    name = Column(String)
-    date = Column(DateTime, server_default=func.now())
+    indicator = Column(Integer, ForeignKey(Indicator.id))
+    days_past = Column(Integer)
+    accuracy = Column(Float)
 
 
 

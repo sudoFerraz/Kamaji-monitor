@@ -122,7 +122,7 @@ print "\n"
 print "\n"
 print "[+] Sinais Ativos [+]"
 print "\n"
-table = PrettyTable(["Signal name", "Active", "Porcentagem de relevancia"])
+table = PrettyTable(["Signal name", "Active", "Relevancia"])
 table.align["Signal name"] = "1"
 table.padding_width = 1
 table.add_row(["Bollinger Band UB", bollinger_up_signal, bollinger_up_signal])
