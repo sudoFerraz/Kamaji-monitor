@@ -13,12 +13,40 @@ from pyfiglet import Figlet
 from prettytable import PrettyTable
 table = PrettyTable()
 
+
+
+
+f = Figlet(font='epic')
+print f.renderText('Kamaji')
+
 os_tools = auxiliary.ostools()
 session = os_tools.db_connection()
 user_handler = auxiliary.user_handler()
 indicator_handler = auxiliary.indicator_handler()
 signal_handler = auxiliary.signal_handler()
 invoice_handler = auxiliary.invoice_handler()
+
+
+start_date = dt.datetime(1995, 1, 1)
+df = web.DataReader('BRL=X', 'yahoo')
+df.to_csv('brlusd.csv', mode='w', header=True)
+data = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
+close_price = data['close']
+up_bollinger = data['boll_ub']
+low_bollinger = data['boll_lb']
+rsi_price_6 = data['rsi_6']
+rsi_price_12 = data['rsi_12']
+macd_signal_line = data['macds']
+macd = data['macd']
+macd_histogram = data['macdh']
+open_delta_against_next2day = data['open_2_d']
+change_2days_ago = data['open_-2_r']
+close_20_sma = data['close_20_sma']
+close_20_mstd = data['close_20_mstd']
+boll = data['boll']
+close_12_ema = data['close_12_ema']
+close_26_ema = data['close_26_ema']
+last_close_price = close_price[-1]
 
 bollinger_up_indicator = indicator_handler.get_indicator_by_name(session, 'bollinger_up')
 bollinger_up_mean = indicator_handler.get_indicator_by_name(session, 'bollinger_up_mean')
@@ -60,4 +88,46 @@ change_2days_ago_indicator = indicator_handler.get_indicator_by_name(session, 'c
 change_2days_ago_mean = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_mean')
 change_2days_ago_std = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_std')
 
+bollinger_up_signal =  signal_handler.get_signal(session, bollinger_up_indicator.id)
+bollinger_low_signal = signal_handler.get_signal(session, bollinger_low_indicator.id)
+macd_histogram_signal = signal_handler.get_signal(session, macd_histogram_indicator.id)
+rsi6_signal = signal_handler.get_signal(session, rsi6_indicator.id)
+macd_signal = signal_handler.get_signal(session, macd_indicator.id)
 
+print "[+][+] Status do mercado no momento [+][+]"
+print "\n"
+t = PrettyTable()
+t.add_column("Close", [close_price_indicator.value])
+t.add_column("Change 2 dias", [change_2days_ago_indicator.value])
+print t
+print "\n"
+print "[+] Indicadores Ativos [+]"
+print "\n"
+print '[+] Ultimo Teto Bollinger Band ' + str(bollinger_up_indicator.value)
+print '[+] Ultimo Chao Bollinger Band ' + str(bollinger_low_indicator.value)
+print "[+] Ultimo EMA Bollinger Band " + str(bollinger_indicator.value)
+print '[+] Ultimo RSI 6 dias ' + str(rsi6_indicator.value)
+print '[+] Ultimo RSI 12 dias ' +  str(rsi12_indicator.value)
+print '[+] Ultimo Macd ' + str(macd_indicator.value)
+print '[+] Ultimo Macd Signal line ' + str(macd_signal_line_indicator.value)
+print '[+] Ultimo Macd Histogram ' + str(macd_histogram_indicator.value)
+print "[+] Ultimo SMA 20 dias ", str(close_20_sma[-1])
+print "[+] Ultimo MSTD 20 dias ", str(close_20_mstd[-1])
+print "[+] Ultimo EMA 12 dias ", str(close_12_ema[-1])
+print "[+] Ultimo EMA 26 dias ", str(close_26_ema[-1])
+print "\n"
+print "\n"
+print "********************************************************************"
+print "\n"
+print "\n"
+print "[+] Sinais Ativos [+]"
+print "\n"
+table = PrettyTable(["Signal name", "Active"])
+table.align["Signal name"] = "1"
+table.padding_width = 1
+table.add_row(["Bollinger Band UB", bollinger_up_signal])
+table.add_row(["Bollinger Band LB", bollinger_low_signal])
+table.add_row(["MACD Histogram", macd_histogram_signal])
+table.add_row(["MACD Cross", macd_signal])
+table.add_row(["Relative Strength Index", rsi6_signal])
+print table

@@ -348,49 +348,6 @@ while True:
         indicator_handler.create_indicator(session, 'macd_signal_line_standardized', new_macd_signal_line_standardized)
 
 
-    print "[+][+] Status do mercado no momento [+][+]"
-    print "\n"
-    t = PrettyTable()
-    t.add_column("Close", [last_close_price])
-    t.add_column("Change 2 dias", [last_change_2days_ago])
-    print t
-    print "\n"
-    print "[+] Indicadores Ativos [+]"
-    print "\n"
-
-    print '[+] Ultimo Teto Bollinger Band', str(last_bollinger_up)
-    print '[+] Ultimo Chao Bollinger Band', last_bollinger_low
-    print "[+] Ultimo Desvio Padrao Bollinger Bands", str(boll[-1])
-    print '[+] Ultimo RSI 6 dias', str(last_rsi_6)
-    print '[+] Ultimo RSI 12 dias', str(last_rsi_12)
-#    print '[+] Ultimo Macd', str(last_macd)
-    print '[+] Ultimo Macd Signal line', str(last_macd_signal_line)
-    print '[+] Ultimo Macd Histogram', str(last_macd_histogram)
-    print "[+] Ultimo SMA 20 dias", str(close_20_sma[-1])
-    print "[+] Ultimo MSTD 20 dias", str(close_20_mstd[-1])
-    print "[+] Ultimo EMA 12 dias", str(close_12_ema[-1])
-    print "[+] Ultimo EMA 26 dias", str(close_26_ema[-1])
-    print "\n"
-    print "\n"
-    print "********************************************************************"
-    print "\n"
-    print "\n"
-    print "[+] Sinais Ativos [+]"
-    print "\n"
-    print table
-    if rsi_signal:
-        print "[+] Sinal RSI 6D > 12D Ativo"
-        print "[++] Distancia dos desvios padroes de %0.3f" % (last_rsi_6 - last_rsi_12)
-
-    if bollinger_low_signal:
-        print "[+] Sinal Bollinger Band Lower Band"
-        print "[++] Distancia de %0.3f ate a borda inferior" % (last_bollinger_low - last_close_price)
-    if bollinger_up_signal:
-        print "[+] Sinal Bollinger Band Upper Band"
-        print "[++] Distancia de %0.3f ate a borda superior" % (last_close_price - last_bollinger_up)
-
-    print ""
-    
     
 
 
@@ -399,9 +356,11 @@ while True:
     #trace = go.Candlestick(x=data.index, close=data.macdh)
     #data = [trace]
     #py.offline.plot(data, filename='Updated_historical')
-    plt.plot(macd)
-    plt.plot(macd_signal_line)
-    plt.plot(macd_histogram)
-    plt.savefig('testingstockdata.png')
+    #plt.plot(macd)
+    #plt.plot(macd_signal_line)
+    plt.plot(up_bollinger)
+    plt.plot(low_bollinger)
+    plt.plot(boll)
+    plt.savefig('bollinger_bands.png')
         #print a
-    time.sleep(600)
+    time.sleep(60)

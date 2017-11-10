@@ -129,8 +129,8 @@ while True:
         if rsi6_indicator.value > rsi12_indicator.value:
             rsi6_signal = signal_handler.create_signal(session, rsi6_indicator.id, rsi6_indicator.value - rsi12_indicator.value)
 
-        
-            
+    
+    
                 
 
     sleep(60)
