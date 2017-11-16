@@ -1,5 +1,7 @@
 import model
 import auxiliary
+import monitor
+import strategy_observer
 import time
 from time import sleep
 import numpy as np
@@ -16,6 +18,8 @@ table = PrettyTable()
 
 
 while True:
+    monitor.monitor()
+    strategy_observer.strategy_observer()
     f = Figlet(font='epic')
     print f.renderText('Kamaji')
 

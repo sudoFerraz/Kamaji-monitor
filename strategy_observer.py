@@ -71,7 +71,7 @@ change_2days_ago_std = indicator_handler.get_indicator_by_name(session, 'change_
 
 
 
-while True:
+def strategy_observer():
     
     bollinger_up_signal =  signal_handler.get_signal_by_indicator(session, bollinger_up_indicator.id)
     bollinger_low_signal = signal_handler.get_signal_by_indicator(session, bollinger_low_indicator.id)
@@ -133,4 +133,4 @@ while True:
     
                 
 
-    sleep(60)
+    return

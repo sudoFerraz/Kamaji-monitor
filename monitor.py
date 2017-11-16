@@ -21,7 +21,7 @@ df = pd.DataFrame()
 
 
 f = Figlet(font='epic')
-print f.renderText('Kamaji')
+print f.renderText('Monitor')
 
 
 
@@ -49,7 +49,7 @@ indicator_handler = auxiliary.indicator_handler()
 
 
 
-while True:
+def monitor():
     start_date = dt.datetime(1995, 1, 1)
     df = web.DataReader('BRL=X', 'yahoo')
     df.to_csv('brlusd.csv', mode='w', header=True)
@@ -361,4 +361,4 @@ while True:
     plt.plot(close_price)
     plt.savefig('close_price.png')
         #print a
-    time.sleep(60)
+    return
