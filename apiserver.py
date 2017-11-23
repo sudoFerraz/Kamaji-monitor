@@ -6,10 +6,10 @@ from flask import jsonify
 from flask import request
 import json
 import model
-from model import User, Notification, Action, Signal, Raw_data
+from model import User, Notification, Action, Signal, Raw_data, Indicator
 import flask
 from flask_sqlalchemy import SQLAlchemy
-import SQLAlchemy
+import sqlalchemy
 from flask_admin import Admin
 
 app = Flask(__name__, template_folder='')
@@ -19,33 +19,31 @@ app.config['SECRET_KEY'] = 'postgres'
 
 db = SQLAlchemy(app)
 admin = Admin(app)
-tools = auxiliary.ostools()
-tools.db_connection()
 
-
-ferramenta = auxiliary.ostools()
-session = ferramenta.dbconnetion()
+os_tools = auxiliary.ostools()
+session = os_tools.db_connection()
 user_handler = auxiliary.user_handler()
 data_handler= auxiliary.data_handler()
 signal_handler = auxiliary.signal_handler()
 notification_handler = auxiliary.notification_handler()
 action_handler = auxiliary.action_handler()
 invoice_handler = auxiliary.invoice_handler()
+indicator_handler = auxiliary.indicator_handler()
 
 @app.teardown_request
 def app_teardown(response_or_exc):
     session.remove()
     return response_or_exc
 
-class MyModelView(ModelView):
-    def __init__(self, model, session, name=None, category=None, endpoint=None,\
-                 url=None, **kwargs):
-        for k, v in kwargs.iteritems():
-            setattr(self, k, v)
-            super(MyModelView, self).__init__(model, session, name=name, category=category, endpoint=endpoint, url=url)
+#class MyModelView(ModelView):
+ #   def __init__(self, model, session, name=None, category=None, endpoint=None,\
+  #               url=None, **kwargs):
+   #     for k, v in kwargs.iteritems():
+    #        setattr(self, k, v)
+     #       super(MyModelView, self).__init__(model, session, name=name, category=category, endpoint=endpoint, url=url)
 
-    def is_accessible(self):
-        return True
+#    def is_accessible(self):
+ #       return True
 
 @app.route('/')
 def index():
@@ -72,4 +70,9 @@ def invoice_register():
             return True
         else:
             return False
+
+@app.route('/indicator/getall')
+def get_indicators():
+    if request.method == 'GET':
+        return True
 
