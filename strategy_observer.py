@@ -5,7 +5,6 @@ import numpy as np
 import pandas_datareader.data  as web
 from time import sleep
 from datetime import datetime
-from forex_python.converter import CurrencyRates
 import stockstats
 import pandas as pd
 from stockstats import StockDataFrame
@@ -123,7 +122,7 @@ def strategy_observer():
     if rsi6_signal:
         if rsi6_indicator.value > rsi12_indicator.value:
             rsi6_signal = signal_handler.update_signal(session, rsi6_signal.id, rsi6_indicator.value - rsi12_indicator.value)
-        elif rsi6_indicator.value <= rsi12_indicator.value:
+        elif rsi6_indicator.value < rsi12_indicator.value:
             signal_handler.delete_signal(session, rsi6_signal.id)
     else:
         if rsi6_indicator.value > rsi12_indicator.value:

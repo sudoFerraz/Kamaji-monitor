@@ -1,8 +1,6 @@
 #Auxiliary Functions
 
 import sqlalchemy
-import os
-import hashlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session

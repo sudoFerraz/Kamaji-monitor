@@ -7,7 +7,6 @@ import plotly.graph_objs as go
 from plotly.graph_objs import *
 import pandas_datareader.data as web
 from datetime import datetime
-from forex_python.converter import CurrencyRates
 import stockstats
 import pandas as pd
 from stockstats import StockDataFrame
@@ -327,7 +326,7 @@ def monitor():
     if macd_histogram_mean:
         indicator_handler.update_indicator(session, macd_histogram_mean.id, new_macd_histogram_mean)
         indicator_handler.update_indicator(session, macd_histogram_std.id, new_macd_histogram_std)
-        indicator_handler.update_indicator(session, macd_histogram_standardized.id, new_macd_standardized)
+        indicator_handler.update_indicator(session, macd_histogram_standardized.id, new_macd_histogram_standardized)
     elif not macd_histogram_mean:
         indicator_handler.create_indicator(session, 'macd_histogram_mean', new_macd_histogram_mean)
         indicator_handler.create_indicator(session, 'macd_histogram_std', new_macd_histogram_std)

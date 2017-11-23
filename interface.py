@@ -126,36 +126,42 @@ while True:
     print "\n"
     print "[+] Sinais Ativos [+]"
     print "\n"
-    table = PrettyTable(["Signal name", "Active", "Relevancia"])
+    table = PrettyTable(["Signal name", "Active", "Relevancia", "Fora do padrao"])
     table.align["Signal name"] = "1"
     table.padding_width = 1
     if bollinger_up_signal:
-        table.add_row(["Bollinger Band UB", "True", bollinger_up_signal.accuracy])
+        table.add_row(["Bollinger Band UB", "True", bollinger_up_signal.accuracy, bollinger_up_standardized.value])
     else:
-        table.add_row(["Bollinger Band UB", "False", "0"])
+        table.add_row(["Bollinger Band UB", "False", "0", "-"])
     if bollinger_low_signal:
-        table.add_row(["Bollinger Band LB", "True", bollinger_low_signal.accuracy])
+        table.add_row(["Bollinger Band LB", "True", bollinger_low_signal.accuracy, bollinger_low_standardized.value])
     else:
-        table.add_row(["Bollinger Band LB", "False", "0"])
+        table.add_row(["Bollinger Band LB", "False", "0", "-"])
     if macd_histogram_signal:
-        table.add_row(["MACD Histogram", "True", macd_histogram_signal.accuracy])
+        table.add_row(["MACD Histogram", "True", macd_histogram_signal.accuracy, macd_histogram_standardized.value])
     else:
-        table.add_row(["MACD Histogram", "False", "0"])
+        table.add_row(["MACD Histogram", "False", "0", "-"])
     if macd_signal:
-        table.add_row(["MACD Cross", "True", macd_signal.accuracy])
+        table.add_row(["MACD Cross", "True", macd_signal.accuracy, macd_standardized.value])
     else:
-        table.add_row(["MACD Cross", "False", "0"])
+        table.add_row(["MACD Cross", "False", "0", "-"])
     if rsi6_signal:
-        table.add_row(["Relative Strength Index", "True", rsi6_signal.accuracy])
+        table.add_row(["Relative Strength Index", "True", rsi6_signal.accuracy, rsi6_standardized.value])
     else:
-        table.add_row(["Relative Strength Index", "False", "0"])
+        table.add_row(["Relative Strength Index", "False", "0", "-"])
 
-    if bollinger_up_signal and bollinger_low_signal and macd_histogram_signal and macd_signal and rsi6_signal:
+    if bollinger_low_signal and macd_histogram_signal and macd_signal and rsi6_signal:
         buy = Figlet(font='contessa')
-        print buy.renderText('BOA COMPRA')
+        print buy.renderText('TENDENCIA DE SUBIDA CONSERVADORA')
+    elif bollinger_up_signal:
+        buy = Filglet(font='contessa')
+        print buy.renderText('TENDENCIA DE CORRECAO PARA BAIXO')
+    elif macd_histogram_signal and macd_signal and rsi6_signal:
+        buy = Filglet(font='contessa')
+        print buy.renderText('TENDENCIA DE SUBIDA ARRISCADA')
     else:
         hold = Figlet(font='mini')
-        print hold.renderText('COMPRA RUIM')
+        print hold.renderText('TENDENCIA DE RISCO RELATIVO ALTO')
     print "\n"
     print table
     sleep(60)
