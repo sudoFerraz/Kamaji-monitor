@@ -118,6 +118,13 @@ class signal_handler(object):
             session.flush()
             return found_signal
 
+    def get_all_signals(self, session):
+        signals = Signal.query.all()
+        if signals == False:
+            return False
+        else:
+            return signals
+
     def get_signal_by_indicator(self, session, indicator_id):
         found_signal = session.query(Signal).filter_by(indicator=indicator_id).first()
         if not found_signal:
@@ -169,6 +176,14 @@ class notification_handler(object):
             return found_notification
         else:
             return False
+    def get_all_notifications(self, session):
+        notifications = Notification.all()
+
+        if notifications == False:
+            return False
+        else:
+            return notifications
+
 
     def delete_notification(self, session, notification_id):
         deleted_signal = session.query(Notification).filter_by\
@@ -198,12 +213,27 @@ class invoice_handler(object):
         session.commit()
         session.flush()
 
+    def get_invoice(self, session, invoice_id):
+        found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
+        if found_invoice.id == invoice_id:
+            return found_invoice
+        else:
+            return False
+
+
     def grab_invoice_id(self, session, invoice_name):
         found_invoice = session.query(Invoice).filter_by(name=invoice_name).first()
         if found_invoice.name == invoice_name:
             return found_invoice
         else:
             return False
+
+    def get_all_invoices(self, session):
+        invoices = Invoice.all()
+        if invoices == False:
+            return False
+        else:
+            return invoices
 
     def update_invoice(self, session, invoice_paid_date, invoice_id):
         found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
@@ -349,6 +379,15 @@ class indicator_handler(object):
             return found_indicator
         else:
             return False
+
+    def get_all_indicators(self, session):
+        indicators = Indicator.all()
+        if indicators == False:
+            return False
+        else:
+            return indicators
+
+
 
     def update_indicator(self, session, indicator_id, new_value):
         found_indicator = session.query(Indicator).filter_by(id=indicator_id).first()
