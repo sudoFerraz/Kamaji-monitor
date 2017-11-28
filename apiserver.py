@@ -85,10 +85,10 @@ def get_invoice_data():
 def get_indicators():
     if request.method == 'GET':
         indicators = indicator_handler.get_all_indicators(session)
-        return indicators
+        return str(indicators)
 
 @app.route('/notification/getall')
-def get_indicators():
+def get_notifications():
     if request.method == 'GET':
         notifications = notification_handler.get_all_notifications(session)
         return notifications

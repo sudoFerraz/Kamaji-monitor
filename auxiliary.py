@@ -381,13 +381,15 @@ class indicator_handler(object):
             return False
 
     def get_all_indicators(self, session):
-        indicators = Indicator.all()
+        indicators = session.query(Indicator)
+        indicators = indicators.all()
+        indicator_list = []
         if indicators == False:
             return False
         else:
-            return indicators
-
-
+            for indicator in indicators:
+                indicator_list.append(indicator.__dict__)
+            return indicator_list
 
     def update_indicator(self, session, indicator_id, new_value):
         found_indicator = session.query(Indicator).filter_by(id=indicator_id).first()
