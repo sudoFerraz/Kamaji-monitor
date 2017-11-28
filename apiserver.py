@@ -5,12 +5,19 @@ from flask import Flask, render_template
 from flask import jsonify
 from flask import request
 import json
+import pandas as pd
+from stockstats import StockDataFrame
 import model
 from model import User, Notification, Action, Signal, Raw_data, Indicator
 import flask
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
 from flask_admin import Admin
+import pandas_datareader as web
+
+f = web.DataReader("BRL=X", 'yahoo')
+
+
 
 app = Flask(__name__, template_folder='')
 
@@ -23,6 +30,7 @@ admin = Admin(app)
 os_tools = auxiliary.ostools()
 session = os_tools.db_connection()
 user_handler = auxiliary.user_handler()
+strategy_handler = auxiliary.strategy_handler()
 data_handler= auxiliary.data_handler()
 signal_handler = auxiliary.signal_handler()
 notification_handler = auxiliary.notification_handler()
@@ -54,7 +62,7 @@ def teste():
     return "teste"
 
 #rota de login
-@app.route('/register/<string:email>/<string:password>/<string:username>')
+@app.route('/login/<string:email>/<string:password>')
 def register():
     if request.method == 'GET':
         return True
@@ -65,7 +73,38 @@ def register():
         else:
             return False
 
-@app.route('/invoice/register/<string:invoice_name>/<float:amount>')
+@app.route('/indicator/getdata/high')
+def get_high():
+    if request.method == 'GET':
+        high = f['High']
+        high = high[-1]
+        return str(high)
+
+@app.route('/strategy/<int:indicator_id>')
+def get_strategy():
+    if request.method == 'GET':
+        pass
+
+@app.route('/chart/getall/line')
+def get_chart():
+    if request.method == 'GET':
+        line_chart = f['Close']
+        return str(line_chart.to_json(orient='table'))
+
+#good buy a fazer para o barraca
+@app.route('/overview')
+def get_overview():
+    if request.method == 'GET':
+        return 'True'
+
+@app.route('/indicator/getdata/low')
+def get_low():
+    if request.method == 'GET':
+        low = f['Low']
+        low = low[-1]
+        return str(low)
+
+@app.route('/invoice/register/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<string:valor_invoice>/<string:dolar_provisao>/<string:observacao>')
 def invoice_register():
     if request.method == 'GET':
         return True
@@ -76,10 +115,21 @@ def invoice_register():
         else:
             return False
 
+@app.route('/strategy/indicator_days/<int:indicator_id>')
+def get_indicator_strategy(indicator_id):
+    days = strategy_handler.get_strategy_indicator_days(session, indicator_id)
+    return str(days)
+
 @app.route('/invoice/getdata/<int:invoiceid>')
 def get_invoice_data():
     invoice = invoice_handler.get_invoice(invoiceid)
     return invoice
+
+@app.route('/indicator/getdata/<int:indicator_id>')
+def get_indicator_data(indicator_id):
+    indicator = indicator_handler.get_indicator(session, indicator_id)
+ #   indicator = indicator.__dict__
+    return str(indicator)
 
 @app.route('/indicator/getall')
 def get_indicators():
@@ -91,18 +141,40 @@ def get_indicators():
 def get_notifications():
     if request.method == 'GET':
         notifications = notification_handler.get_all_notifications(session)
-        return notifications
+        return str(notifications)
 
 @app.route('/invoice/getall')
 def get_invoices():
     if request.method == 'GET':
-        invoices = invoice_handler.get_all_invoices()
-        return invoices
+        invoices = invoice_handler.get_all_invoices(session)
+        return str(invoices)
+
+stockchart = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
+
+@app.route('/chart/indicator/<int:indicator_id>')
+def get_indicator_chart(indicator_id):
+    if request.method == 'GET':
+        #macd 1, macdh 3, rsi 8, bollinger 4
+        if indicator_id == 1:
+            macd = stockchart['macd']
+            return str(macd.to_json(orient='table'))
+        if indicator_id == 3:
+            macdh = stockchart['macdh']
+            return str(macdh.to_json(orient='table'))
+        if indicator_id == 8:
+            rsi = stockchart['rsi_6']
+            return str(rsi.to_json(orient='table'))
+        if indicator_id == 5:
+            bollinger = stockchart['boll_ub']
+            return str(bollinger.to_json(orient='table'))
+        if indicator_id == 6:
+            bollinger_low = stockchart['boll_lb']
 
 
 @app.route('/signal/getall')
 def get_signals():
     if request.method == 'GET':
-        signals = signal_handler.get_signal_by_indicator(sesssion)
-        return signals
+        signals = signal_handler.get_all_signals(session)
+        return str(signals)
 
+app.run(host='0.0.0.0')

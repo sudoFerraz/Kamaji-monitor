@@ -4,13 +4,13 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
+import json
 
-
-from model import User, Raw_data, Signal, Notification, Action, Indicator
+from model import User, Raw_data, Signal, Notification, Action, Indicator, Invoice, Strategy
 import model
 
 class ostools(object):
-    def __initi__(self):
+    def __init__(self):
         self.os = ""
         self.user = ""
         self.ip = ""
@@ -119,11 +119,14 @@ class signal_handler(object):
             return found_signal
 
     def get_all_signals(self, session):
-        signals = Signal.query.all()
+        signals = session.query(Signal).all()
+        signal_list = []
         if signals == False:
             return False
         else:
-            return signals
+            for signal in signals:
+                signal_list.append(signal.indicator)
+            return signal_list
 
     def get_signal_by_indicator(self, session, indicator_id):
         found_signal = session.query(Signal).filter_by(indicator=indicator_id).first()
@@ -143,6 +146,19 @@ class signal_handler(object):
             return found_signal
         else:
             return False
+
+    def get_all_signals(self, session):
+        signals = session.query(Signal)
+        signals = signals.all()
+        signal_list = []
+        if signals == False:
+            return False
+        else:
+            for signal in signals:
+                signal_list.append(signal.indicator)
+            return signal_list
+
+
 
     def delete_signal(self, session, signalid):
         deleted_signal = session.query(Signal).filter_by(id=signalid).delete()
@@ -177,12 +193,19 @@ class notification_handler(object):
         else:
             return False
     def get_all_notifications(self, session):
-        notifications = Notification.all()
-
+        notifications = session.query(Notification).all()
+        notification_list = []
         if notifications == False:
             return False
         else:
-            return notifications
+            for notification in notifications:
+                new_notification = {}
+                new_notification['date'] = str(notification.date)
+                new_notification['message'] = notification.message
+                new_notification['indicadores'] = notification.platform
+                new_notification = json.dumps(new_notification)
+                notification_list.append(new_notification)
+            return notification_list
 
 
     def delete_notification(self, session, notification_id):
@@ -229,11 +252,17 @@ class invoice_handler(object):
             return False
 
     def get_all_invoices(self, session):
-        invoices = Invoice.all()
+        invoices = session.query(Invoice)
+        invoices = invoices.all()
+        invoice_list = []
         if invoices == False:
             return False
         else:
-            return invoices
+            for invoice in invoices:
+                invoice_list.append(invoice.__dict__)
+            return invoice_list
+
+
 
     def update_invoice(self, session, invoice_paid_date, invoice_id):
         found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
@@ -285,7 +314,9 @@ class strategy_handler(object):
         session.flush()
         return new_strategy
 
-
+    def get_strategy_indicator_days(self, session, indicator_id):
+        found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
+        return found_strategy.days_past
 
     def delete_strategy(self, session, indicator_id):
         deleted_strategy = session.query(Strategy).filter_by(indicator=indicator_id).delete()
@@ -362,7 +393,7 @@ class indicator_handler(object):
         if not found_indicator:
             return False
         if found_indicator.id == indicator_id:
-            return found_indicator
+            return found_indicator.value
         else:
             return False
 
