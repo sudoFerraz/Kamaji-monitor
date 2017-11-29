@@ -56,12 +56,19 @@ class Invoice(Base):
 
     __tablename__ = "Invoice"
     id = Column(Integer, primary_key=True)
-    start_date = Column(DateTime, server_default=func.now())
-    paid = Column(Boolean)
-    amount = Column(Float)
-    date_paid = Column(DateTime)
-    name = Column(String)
-
+    nro_invoice = Column(Integer)
+    resp_invoice = Column(String)
+    tipo = Column(String)
+    dt_emissao = Column(String)
+    dt_vencimento = Column(String)
+    dt_pagamento = Column(String)
+    fornecedor = Column(String)
+    valor_invoice = Column(Float)
+    dolar_provisao = Column(Float)
+    dolar_pagamento = Column(Float)
+    valor_pago = Column(Float)
+    status = Column(String)
+    observacao = Column(String)
 
 class Action(Base):
 
