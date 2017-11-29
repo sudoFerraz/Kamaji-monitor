@@ -70,6 +70,14 @@ class Invoice(Base):
     status = Column(String)
     observacao = Column(String)
 
+class Contact(Base):
+
+    __tablename__ = "Contact"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    email = Column(String)
+    phone = Column(String)
+
 class Action(Base):
 
     __tablename__ = "Action"

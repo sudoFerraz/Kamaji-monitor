@@ -73,6 +73,22 @@ def register():
         else:
             return False
 
+
+
+
+@app.route('/invoice/getopen')
+def get_open_invoices():
+    if request.method == 'GET':
+        opened_invoices = invoice_handler.get_all_open(session)
+        return opened_invoices
+
+@app.route('/invoice/getclose')
+def get_closed_invoices():
+    if request.method == 'GET':
+        closed_invoices = invoice_handler.get_all_closed(session)
+        return closed_invoices
+
+
 @app.route('/invoice/set_payment/<int:nro_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
 def testing(nro_invoice, dt_pagamento, dolar_pagamento, valor_pago):
     if request.method == 'GET':

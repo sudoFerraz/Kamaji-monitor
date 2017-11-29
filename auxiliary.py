@@ -278,6 +278,62 @@ class invoice_handler(object):
         else:
             return False
 
+    def get_all_open(self, session):
+        invoices = session.query(Invoice)
+        invoices = invoices.all()
+        invoice_list = []
+        if invoices == False:
+            return invoice_list
+        else:
+            for invoice in invoices:
+                if invoice.status == 'aberta':
+                    new_invoice = {}
+                    new_invoice['nro_invoice'] = found_invoice.nro_invoice
+                    new_invoice['resp_invoice'] = found_invoice.resp_invoice
+                    new_invoice['tipo'] = found_invoice.tipo
+                    new_invoice['dt_emissao'] = found_invoice.dt_emissao
+                    new_invoice['dt_vencimento'] = found_invoice.dt_vencimento
+                    new_invoice['dt_pagamento'] = found_invoice.dt_pagamento
+                    new_invoice['fornecedor'] = found_invoice.fornecedor
+                    new_invoice['valor_invoice'] = found_invoice.valor_invoice
+                    new_invoice['dolar_provisao'] = found_invoice.dolar_provisao
+                    new_invoice['dolar_pagamento'] = found_invoice.dolar_pagamento
+                    new_invoice['valor_pago'] = found_invoice.valor_pago
+                    new_invoice['status'] = found_invoice.status
+                    new_invoice['observacao'] = found_invoice.observacao
+                    new_invoice = json.dumps(new_invoice)
+                    invoice_list.append(new_invoice)
+            return invoice_list
+
+
+    def get_all_closed(self, session):
+        invoices = session.query(Invoice)
+        invoices = invoices.all()
+        invoice_list = []
+        if invoices == False:
+            return invoice_list
+        else:
+            for invoice in invoices:
+                if invoice.status == 'encerrada':
+                    new_invoice = {}
+                    new_invoice['nro_invoice'] = found_invoice.nro_invoice
+                    new_invoice['resp_invoice'] = found_invoice.resp_invoice
+                    new_invoice['tipo'] = found_invoice.tipo
+                    new_invoice['dt_emissao'] = found_invoice.dt_emissao
+                    new_invoice['dt_vencimento'] = found_invoice.dt_vencimento
+                    new_invoice['dt_pagamento'] = found_invoice.dt_pagamento
+                    new_invoice['fornecedor'] = found_invoice.fornecedor
+                    new_invoice['valor_invoice'] = found_invoice.valor_invoice
+                    new_invoice['dolar_provisao'] = found_invoice.dolar_provisao
+                    new_invoice['dolar_pagamento'] = found_invoice.dolar_pagamento
+                    new_invoice['valor_pago'] = found_invoice.valor_pago
+                    new_invoice['status'] = found_invoice.status
+                    new_invoice['observacao'] = found_invoice.observacao
+                    new_invoice = json.dumps(new_invoice)
+                    invoice_list.append(new_invoice)
+            return invoice_list
+
+
     def get_all_invoices(self, session):
         invoices = session.query(Invoice)
         invoices = invoices.all()
@@ -315,6 +371,30 @@ class invoice_handler(object):
         else:
             return False
 
+
+class contact_handler(object):
+    def create_contact(self, session, new_name, new_email, new_phone):
+        new_contact = model.Contact(name=new_name, email=new_email, phone=new_phone)
+        session.add(new_contact)
+        session.commit()
+        session.flush()
+        return new_contact
+
+    def delete_contact(self, session, contact_email):
+        found_contact = session.query(Contact).filter_by(email=contact_email).delete()
+        session.commit()
+        session.flush()
+
+    def get_all_contacts(self, session):
+        found_contact = session.query(Contact).all()
+        contact_list = []
+        for contact in found_contact:
+            new_contact = {}
+            new_contact['name'] = contact.name
+            new_contact['email'] = contact.email
+            new_contact['phone'] = contact.phone
+            contact_list.append(new_contact)
+        return contact_list
 
 class action_handler(object):
     def create_action(self, session, action_amount, action_date, action_user):
