@@ -224,8 +224,8 @@ class notification_handler(object):
         return found_notifications
 
 class invoice_handler(object):
-    def create_invoice(self, session, new_amount, new_name):
-        new_invoice = model.Invoice(amount=new_amount, name=new_name)
+    def create_invoice(self, session, nunro_invoice, nuresp_invoice, nutipo, nudt_emissao, nudt_vencimento, nufornecedor, nuvalor_invoice, nudolar_provisao, nuobservacao):
+        new_invoice = model.Invoice(nro_invoice=nunro_invoice, resp_invoice=nuresp_invoice, tipo=nutipo, dt_emissao=nudt_emissao, dt_vencimento=nudt_vencimento, fornecedor=nufornecedor, valor_invoice=nuvalor_invoice, dolar_provisao=nudolar_provisao, status='aberta', observacao=nuobservacao)
         session.add(new_invoice)
         session.commit()
         session.flush()
@@ -237,12 +237,39 @@ class invoice_handler(object):
         session.flush()
 
     def get_invoice(self, session, invoice_id):
-        found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
-        if found_invoice.id == invoice_id:
-            return found_invoice
+        found_invoice = session.query(Invoice).filter_by(nro_invoice=invoice_id).first()
+        if found_invoice.nro_invoice == invoice_id:
+            new_invoice = {}
+            new_invoice['nro_invoice'] = found_invoice.nro_invoice
+            new_invoice['resp_invoice'] = found_invoice.resp_invoice
+            new_invoice['tipo'] = found_invoice.tipo
+            new_invoice['dt_emissao'] = found_invoice.dt_emissao
+            new_invoice['dt_vencimento'] = found_invoice.dt_vencimento
+            new_invoice['dt_pagamento'] = found_invoice.dt_pagamento
+            new_invoice['fornecedor'] = found_invoice.fornecedor
+            new_invoice['valor_invoice'] = found_invoice.valor_invoice
+            new_invoice['dolar_provisao'] = found_invoice.dolar_provisao
+            new_invoice['dolar_pagamento'] = found_invoice.dolar_pagamento
+            new_invoice['valor_pago'] = found_invoice.valor_pago
+            new_invoice['status'] = found_invoice.status
+            new_invoice['observacao'] = found_invoice.observacao
+            new_invoice = json.dumps(new_invoice)
+            return new_invoice
         else:
             return False
 
+    def set_payment(self, session, nunro_invoice, nudt_pagamento, nudolar_pagamento, nuvalor_pago):
+        found_invoice = session.query(Invoice).filter_by(nro_invoice=nunro_invoice).first()
+        if found_invoice.nro_invoice == nunro_invoice:
+            found_invoice.dt_pagamento = nudt_pagamento
+            found_invoice.dolar_pagamento = nudolar_pagamento
+            found_invoice.valor_pago = nuvalor_pago
+            found_invoice.status = 'encerrada'
+            session.commit()
+            session.flush()
+            return True
+        else:
+            return False
 
     def grab_invoice_id(self, session, invoice_name):
         found_invoice = session.query(Invoice).filter_by(name=invoice_name).first()
@@ -259,7 +286,22 @@ class invoice_handler(object):
             return False
         else:
             for invoice in invoices:
-                invoice_list.append(invoice.__dict__)
+            	new_invoice = {}
+            	new_invoice['nro_invoice'] = found_invoice.nro_invoice
+            	new_invoice['resp_invoice'] = found_invoice.resp_invoice
+            	new_invoice['tipo'] = found_invoice.tipo
+    	        new_invoice['dt_emissao'] = found_invoice.dt_emissao
+    	        new_invoice['dt_vencimento'] = found_invoice.dt_vencimento
+    	        new_invoice['dt_pagamento'] = found_invoice.dt_pagamento
+    	        new_invoice['fornecedor'] = found_invoice.fornecedor
+    	        new_invoice['valor_invoice'] = found_invoice.valor_invoice
+    	        new_invoice['dolar_provisao'] = found_invoice.dolar_provisao
+    	        new_invoice['dolar_pagamento'] = found_invoice.dolar_pagamento
+    	        new_invoice['valor_pago'] = found_invoice.valor_pago
+    	        new_invoice['status'] = found_invoice.status
+    	        new_invoice['observacao'] = found_invoice.observacao
+    	        new_invoice = json.dumps(new_invoice)
+    	        invoice_list.append(new_invoice)
             return invoice_list
 
 

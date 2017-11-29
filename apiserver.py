@@ -73,6 +73,15 @@ def register():
         else:
             return False
 
+@app.route('/invoice/set_payment/<int:nro_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
+def testing(nro_invoice, dt_pagamento, dolar_pagamento, valor_pago):
+    if request.method == 'GET':
+        try:
+            invoice_handler.set_payment(session, nro_invoice, dt_pagamento, dolar_pagamento, valor_pago)
+            return 'OK'
+        except:
+            return 'ERRO'
+
 @app.route('/indicator/getdata/high')
 def get_high():
     if request.method == 'GET':
@@ -104,16 +113,28 @@ def get_low():
         low = low[-1]
         return str(low)
 
-@app.route('/invoice/register/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<string:valor_invoice>/<string:dolar_provisao>/<string:observacao>')
-def invoice_register():
+@app.route('/invoice/getdata/<int:nro_invoice>')
+def get_invoice(nro_invoice):
     if request.method == 'GET':
-        return True
-    elif request.method == 'POST':
-        newinvoice = invoice_handler.create_invoice(amount, invoice_name)
-        if newinvoice:
-            return True
-        else:
-            return False
+        found_invoice = invoice_handler.get_invoice(session, nro_invoice)
+        return str(found_invoice)
+
+
+@app.route('/invoice/getall')
+def invoice_geatll():
+    if request.method == 'GET':
+        found_invoices = invoice_handler.get_all_invoices(session)
+        return str(found_invoices)
+
+@app.route('/invoice/register/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_previsao, observacao):
+    if request.method == 'GET':
+        try:
+            invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_previsao, status, observacao)
+            return 'ok'
+        except:
+            return 'erro'
+
 
 @app.route('/strategy/indicator_days/<int:indicator_id>')
 def get_indicator_strategy(indicator_id):
