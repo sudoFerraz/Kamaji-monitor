@@ -231,6 +231,20 @@ class invoice_handler(object):
         session.flush()
         return new_invoice
 
+    def update_invoice(self, session, nunro_invoice, nuresp_invoice, nutipo, nudt_emissao, nudt_vencimento, nufornecedor, nuvalor_invoice, nudolar_provisao, nuobservacao):
+        found_invoice = session.query(Invoice).filter_by(nro_invoice=nunro_invoice).first()
+        found_invoice.resp_invoice = nuresp_invoice
+        found_invoice.tipo = nutipo
+        found_invoice.dt_emissao = nudt_emissao
+        found_invoice.dt_vencimento = nudt_vencimento
+        found_invoice.fornecedor = nufornecedor
+        found_invoice.valor_invoice = nuvalor_invoice
+        found_invoice.dolar_provisao = nudolar_provisao
+        found_invoice.observacao = nuobservacao
+        session.commit()
+        session.flush()
+        return new_invoice
+
     def delete_invoice(self, session, invoice_id):
         to_be_deleted_invoice = session.query(Invoice).filter_by(id=invoice_id).delete()
         session.commit()
@@ -361,15 +375,6 @@ class invoice_handler(object):
             return invoice_list
 
 
-
-    def update_invoice(self, session, invoice_paid_date, invoice_id):
-        found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
-        if found_invoice.id == invoice_id:
-            found_invoice.paid = True
-            found_invoice.date_paid = invoice_paid_date
-            return found_invoice
-        else:
-            return False
 
 
 class contact_handler(object):

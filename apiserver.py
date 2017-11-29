@@ -33,6 +33,7 @@ user_handler = auxiliary.user_handler()
 strategy_handler = auxiliary.strategy_handler()
 data_handler= auxiliary.data_handler()
 signal_handler = auxiliary.signal_handler()
+contact_handler = auxiliary.contact_handler()
 notification_handler = auxiliary.notification_handler()
 action_handler = auxiliary.action_handler()
 invoice_handler = auxiliary.invoice_handler()
@@ -73,8 +74,34 @@ def register():
         else:
             return False
 
+@app.route('/contact/delete/<string:email>')
+def delete_contact(email):
+    if request.method == 'GET':
+        try:
+            contact_handler.delete_contact(session, email)
+            return "OK"
+        except:
+            return "ERRO"
 
+@app.route('/contact/register/<string:name>/<string:email>/<string:phone>')
+def register_contact(name, email, phone):
+    if request.method == 'GET':
+        try:
+            new_contact = contact_handler.create_contact(session, name, email, phone)
+            return "OK"
+        except:
+            return "ERRO"
 
+@app.route('/strategy/getall')
+def get_all_strategy():
+    if request.method == 'GET':
+        return "ok"
+
+@app.route('/contact/getall')
+def get_all_contacts():
+    if request.method == 'GET':
+        contacts = contact_handler.get_all_contacts(session)
+        return str(contacts)
 
 @app.route('/invoice/getopen')
 def get_open_invoices():
@@ -128,6 +155,17 @@ def get_low():
         low = f['Low']
         low = low[-1]
         return str(low)
+
+@app.route('invoice/update/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
+    if request.method == 'GET':
+        try:
+            invoice_handler.update_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
+            return "OK"
+        except:
+            return "ERRO"
+
+
 
 @app.route('/invoice/getdata/<int:nro_invoice>')
 def get_invoice(nro_invoice):
