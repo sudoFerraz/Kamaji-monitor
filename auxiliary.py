@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
 import json
 
-from model import User, Raw_data, Signal, Notification, Action, Indicator, Invoice, Strategy
+from model import User, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
 import model
 
 class ostools(object):
@@ -299,8 +299,8 @@ class invoice_handler(object):
         if invoices == False:
             return invoice_list
         else:
-            for invoice in invoices:
-                if invoice.status == 'aberta':
+            for found_invoice in invoices:
+                if found_invoice.status == 'aberta':
                     new_invoice = {}
                     new_invoice['nro_invoice'] = found_invoice.nro_invoice
                     new_invoice['resp_invoice'] = found_invoice.resp_invoice
@@ -355,7 +355,7 @@ class invoice_handler(object):
         if invoices == False:
             return False
         else:
-            for invoice in invoices:
+            for found_invoice in invoices:
             	new_invoice = {}
             	new_invoice['nro_invoice'] = found_invoice.nro_invoice
             	new_invoice['resp_invoice'] = found_invoice.resp_invoice
@@ -398,7 +398,7 @@ class contact_handler(object):
             new_contact['name'] = contact.name
             new_contact['email'] = contact.email
             new_contact['phone'] = contact.phone
-            contact_list.append(new_contact)
+            contact_list.append(json.dumps(new_contact))
         return contact_list
 
 class action_handler(object):

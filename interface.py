@@ -92,11 +92,11 @@ while True:
     change_2days_ago_mean = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_mean')
     change_2days_ago_std = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_std')
 
-    bollinger_up_signal =  signal_handler.get_signal(session, bollinger_up_indicator.id)
-    bollinger_low_signal = signal_handler.get_signal(session, bollinger_low_indicator.id)
-    macd_histogram_signal = signal_handler.get_signal(session, macd_histogram_indicator.id)
-    rsi6_signal = signal_handler.get_signal(session, rsi6_indicator.id)
-    macd_signal = signal_handler.get_signal(session, macd_indicator.id)
+    bollinger_up_signal =  signal_handler.get_signal_by_indicator(session, bollinger_up_indicator.id)
+    bollinger_low_signal = signal_handler.get_signal_by_indicator(session, bollinger_low_indicator.id)
+    macd_histogram_signal = signal_handler.get_signal_by_indicator(session, macd_histogram_indicator.id)
+    rsi6_signal = signal_handler.get_signal_by_indicator(session, rsi6_indicator.id)
+    macd_signal = signal_handler.get_signal_by_indicator(session, macd_indicator.id)
 
     print "[+][+] Status do mercado no momento [+][+]"
     print "\n"

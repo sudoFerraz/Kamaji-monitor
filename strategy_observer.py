@@ -71,14 +71,14 @@ change_2days_ago_std = indicator_handler.get_indicator_by_name(session, 'change_
 
 
 def strategy_observer():
-    
+
     bollinger_up_signal =  signal_handler.get_signal_by_indicator(session, bollinger_up_indicator.id)
     bollinger_low_signal = signal_handler.get_signal_by_indicator(session, bollinger_low_indicator.id)
     macd_histogram_signal = signal_handler.get_signal_by_indicator(session, macd_histogram_indicator.id)
     rsi6_signal = signal_handler.get_signal_by_indicator(session, rsi6_indicator.id)
     macd_signal = signal_handler.get_signal_by_indicator(session, macd_indicator.id)
 
-    #bollinger up signal calculation    
+    #bollinger up signal calculation
     if bollinger_up_signal:
         if close_price_indicator.value < bollinger_up_indicator.value:
             signal_handler.delete_signal(session, bollinger_up_signal.id)
@@ -87,7 +87,7 @@ def strategy_observer():
     else:
         if close_price_indicator.value >= bollinger_up_indicator.value:
             bollinger_up_signal = signal_handler.create_signal(session, bollinger_up_indicator.id, close_price_indicator.value - bollinger_up_indicator.value)
-    
+
     #bollinger low signal calculation
     if bollinger_low_signal:
         if close_price_indicator.value > bollinger_low_indicator.value:
@@ -97,7 +97,7 @@ def strategy_observer():
     else:
         if close_price_indicator <= bollinger_low_indicator.value:
             bollinger_low_signal = signal_handler.create_signal(session, bollinger_low_indicator.id, close_price_indicator.value - bollinger_low_indicator.value)
-    
+
     #macd histogram signal calculation
     if macd_histogram_signal:
         if macd_histogram_indicator.value < 0:
@@ -117,7 +117,7 @@ def strategy_observer():
     else:
         if macd_indicator.value > macd_signal_line_indicator.value:
             macd_signal = signal_handler.create_signal(session, macd_indicator.id, macd_indicator.value - macd_signal_line_indicator.value)
-    
+
     #rsi cross signal calculation
     if rsi6_signal:
         if rsi6_indicator.value > rsi12_indicator.value:
@@ -127,9 +127,5 @@ def strategy_observer():
     else:
         if rsi6_indicator.value > rsi12_indicator.value:
             rsi6_signal = signal_handler.create_signal(session, rsi6_indicator.id, rsi6_indicator.value - rsi12_indicator.value)
-
-    
-    
-                
 
     return

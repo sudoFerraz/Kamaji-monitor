@@ -107,13 +107,13 @@ def get_all_contacts():
 def get_open_invoices():
     if request.method == 'GET':
         opened_invoices = invoice_handler.get_all_open(session)
-        return opened_invoices
+        return str(opened_invoices).replace("'", "")
 
 @app.route('/invoice/getclose')
 def get_closed_invoices():
     if request.method == 'GET':
         closed_invoices = invoice_handler.get_all_closed(session)
-        return closed_invoices
+        return str(closed_invoices).replace("'", "")
 
 
 @app.route('/invoice/set_payment/<int:nro_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
@@ -131,6 +131,7 @@ def get_high():
         high = f['High']
         high = high[-1]
         return str(high)
+
 
 @app.route('/strategy/<int:indicator_id>')
 def get_strategy():
@@ -156,7 +157,7 @@ def get_low():
         low = low[-1]
         return str(low)
 
-@app.route('invoice/update/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+@app.route('/invoice/update/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
 def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
     if request.method == 'GET':
         try:
@@ -178,17 +179,13 @@ def get_invoice(nro_invoice):
 def invoice_geatll():
     if request.method == 'GET':
         found_invoices = invoice_handler.get_all_invoices(session)
-        return str(found_invoices)
+        return str(found_invoices).replace("'", "")
 
 @app.route('/invoice/register/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
-def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_previsao, observacao):
+def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
     if request.method == 'GET':
-        try:
-            invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_previsao, status, observacao)
-            return 'ok'
-        except:
-            return 'erro'
-
+        invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
+        return "ok"
 
 @app.route('/strategy/indicator_days/<int:indicator_id>')
 def get_indicator_strategy(indicator_id):
@@ -218,11 +215,11 @@ def get_notifications():
         notifications = notification_handler.get_all_notifications(session)
         return str(notifications)
 
-@app.route('/invoice/getall')
-def get_invoices():
-    if request.method == 'GET':
-        invoices = invoice_handler.get_all_invoices(session)
-        return str(invoices)
+#@app.route('/invoice/getall')
+#def get_invoices():
+#    if request.method == 'GET':
+#        invoices = invoice_handler.get_all_invoices(session)
+#        return str(invoices)
 
 stockchart = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
 
