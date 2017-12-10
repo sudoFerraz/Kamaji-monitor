@@ -5,8 +5,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
 import json
+import hashlib
 
-from model import User, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
+
+from model import Users, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
 import model
 
 class ostools(object):
@@ -26,14 +28,37 @@ class ostools(object):
         session = Session
         return session
 
+class strategy_type_handler(object):
+
+    def update_strategy_type(session, newtype):
+        strategy = session.query(model.Strategy_type).filter_by(id=1).first()
+        strategy.type = newtype
+        session.commit()
+        session.flush()
+        return strategy
+
 class user_handler(object):
-    def create_user(self, session, useremail, username, userpass, utype):
-        newuser = model.User(email=useremail, name=username, password=userpass, \
-                             usertype=utype)
+
+    def create_user(self, session, useremail, userpass, utype, username):
+        newpass = hashlib.md5(userpass).hexdigest()
+        newuser = model.Users(email=useremail, password=newpass, name=username, usertype=utype)
         session.add(newuser)
         session.commit()
         session.flush()
         return newuser
+
+    def verify_user(self, session, useremail, userpass):
+        founduser = session.query(Users).filter_by(email=useremail).first()
+        if not founduser:
+            return False
+        else:
+            if founduser.email == useremail:
+                if founduser.password == userpass:
+                    return founduser
+                else:
+                    return False
+            else:
+                return False
 
     def delete_user(self, session, userid):
         deleteduser = session.query(User).filter_by(id=userid).delete()
@@ -432,6 +457,10 @@ class action_handler(object):
                 return False
         return found_actions
 
+class type_handler(object):
+    def set_type(self, session):
+        return True
+
 class strategy_handler(object):
     def create_strategy(self, session, indicator_id, min_days, new_accuracy):
         new_strategy = model.Strategy(indicator=indicator_id, days_past=min_days, accuracy=new_accuracy)
@@ -440,6 +469,16 @@ class strategy_handler(object):
         session.commit()
         session.flush()
         return new_strategy
+
+    def get_strategy_by_indicator(self, session, indicator_id):
+        found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
+        if not found_strategy:
+            return False
+        else:
+            if found_strategy.indicator == indicator_id:
+                return found_strategy
+            else:
+                return False
 
     def get_strategy_indicator_days(self, session, indicator_id):
         found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()

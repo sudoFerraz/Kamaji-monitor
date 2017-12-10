@@ -154,10 +154,10 @@ while True:
         buy = Figlet(font='contessa')
         print buy.renderText('TENDENCIA DE SUBIDA CONSERVADORA')
     elif bollinger_up_signal:
-        buy = Filglet(font='contessa')
+        buy = Figlet(font='contessa')
         print buy.renderText('TENDENCIA DE CORRECAO PARA BAIXO')
     elif macd_histogram_signal and macd_signal and rsi6_signal:
-        buy = Filglet(font='contessa')
+        buy = Figlet(font='contessa')
         print buy.renderText('TENDENCIA DE SUBIDA ARRISCADA')
     else:
         hold = Figlet(font='mini')

@@ -8,12 +8,13 @@ import json
 import pandas as pd
 from stockstats import StockDataFrame
 import model
-from model import User, Notification, Action, Signal, Raw_data, Indicator
+from model import Users, Notification, Action, Signal, Raw_data, Indicator
 import flask
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
 from flask_admin import Admin
 import pandas_datareader as web
+from datetime import datetime, timedelta
 
 f = web.DataReader("BRL=X", 'yahoo')
 
@@ -38,6 +39,7 @@ notification_handler = auxiliary.notification_handler()
 action_handler = auxiliary.action_handler()
 invoice_handler = auxiliary.invoice_handler()
 indicator_handler = auxiliary.indicator_handler()
+strategy_type_handler = auxiliary.strategy_type_handler()
 
 @app.teardown_request
 def app_teardown(response_or_exc):
@@ -62,6 +64,32 @@ def index():
 def teste():
     return "teste"
 
+
+
+@app.route('/checkbox/<int:choice>', methods=['GET'])
+def checkbox_markup(choice):
+    if request.method == 'GET':
+        found = strategy_type_handler.update_strategy_type(session, choice)
+        if found:
+            return "ok"
+        else:
+            return "erro"
+
+#Fazer retornar os codigos
+@app.route('/login/<string:email>/<string:password>', methods=['GET'])
+def login(email, password):
+    if request.method == 'GET':
+        found = user_handler.verify_user(session, email, password)
+        if not found:
+            return "erro"
+        if found:
+            req = {}
+            req['name'] = found.name
+            req['usertype'] = found.usertype
+            req = json.dumps(req)
+            return req
+"""
+
 #rota de login
 @app.route('/login/<string:email>/<string:password>')
 def register():
@@ -73,6 +101,7 @@ def register():
             return True
         else:
             return False
+            """
 
 @app.route('/contact/delete/<string:email>')
 def delete_contact(email):
@@ -82,6 +111,23 @@ def delete_contact(email):
             return "OK"
         except:
             return "ERRO"
+
+
+type_handler = auxiliary.type_handler()
+
+@app.route('/invoice/delete/<string:invoice_id>')
+def delete_invoice(invoice_id):
+    invoice_handler.delete_invoice(session, invoice_id)
+    return "ok"
+
+@app.route('/strategy/set', methods=['POST'])
+def set_strategy():
+    if request.method == 'POST':
+        strategy = request.form['strategy']
+        return True
+
+
+
 
 @app.route('/contact/register/<string:name>/<string:email>/<string:phone>')
 def register_contact(name, email, phone):
@@ -187,6 +233,7 @@ def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento,
         invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
         return "ok"
 
+
 @app.route('/strategy/indicator_days/<int:indicator_id>')
 def get_indicator_strategy(indicator_id):
     days = strategy_handler.get_strategy_indicator_days(session, indicator_id)
@@ -223,6 +270,100 @@ def get_notifications():
 
 stockchart = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
 
+
+@app.route('/chart/year/indicator/<int:indicator_id>')
+def get_indicator_year_chart(indicator_id):
+    yeardata = web.DataReader('BRL=X', 'yahoo')
+    stockyear = StockDataFrame.retype(yeardata)
+    if request.method == 'GET':
+        if indicator_id == 0:
+            close = stockyear['close']
+            close = close.iloc[-365:]
+            return str(close.to_json(orient='table'))
+        elif indicator_id == 1:
+            macd = stockyear['macd']
+            macd = macd.iloc[-365:]
+            return str(macd.to_json(orient='table'))
+        elif indicator_id == 3:
+            macdh = stockyear['macdh']
+            macdh = macdh.iloc[-365:]
+            return str(macdh.to_json(orient='table'))
+        elif indicator_id == 8:
+            rsi = stockyear['rsi_6']
+            rsi = rsi.iloc[-365:]
+            return str(rsi.to_json(orient='table'))
+        elif indicator_id == 5:
+            bollinger_ub = stockyear['boll_ub']
+            bollinger_ub = bollinger_ub.iloc[-365:]
+            return str(bollinger_ub.to_json(orient='table'))
+        elif indicator_id == 6:
+            bollinger_low = stockyear['bollinger_low']
+            bollinger_low = bollinger_low.iloc[-365:]
+            return str(bollinger_low.to_json(orient='table'))
+
+
+
+@app.route('/chart/month/indicator/<int:indicator_id>')
+def get_indicator_month_chart(indicator_id):
+    monthdata = web.DataReader('BRL=X', 'yahoo')
+    stockmonth = StockDataFrame.retype(monthdata)
+    if request.method == 'GET':
+        if indicator_id == 0:
+            close = stockmonth['close']
+            close = close.iloc[-30:]
+            return str(close.to_json(orient='table'))
+        elif indicator_id == 1:
+            macd = stockmonth['macd']
+            macd = macd.iloc[-30:]
+            return str(macd.to_json(orient='table'))
+        elif indicator_id == 3:
+            macdh = stockmonth['macdh']
+            macdh = macdh.iloc[-30:]
+            return str(macdh.to_json(orient='table'))
+        elif indicator_id == 8:
+            rsi = stockmonth['rsi_6']
+            rsi = rsi.iloc[-30:]
+            return str(rsi.to_json(orient='table'))
+        elif indicator_id == 5:
+            bollinger_ub = stockmonth['boll_ub']
+            bollinger_ub = bollinger_ub.iloc[-30:]
+            return str(bollinger_ub.to_json(orient='table'))
+        elif indicator_id == 6:
+            bollinger_low = stockmonth['bollinger_low']
+            bollinger_low = bollinger_low.iloc[-30:]
+            return str(bollinger_low.to_json(orient='table'))
+
+@app.route('/chart/week/indicator/<int:indicator_id>')
+def get_indicator_week_chart(indicator_id):
+    weekdata = web.DataReader('BRL=X', 'yahoo')
+    stockweek = StockDataFrame.retype(weekdata)
+    if request.method == 'GET':
+        if indicator_id == 1:
+            macd = stockweek['macd']
+            macd = macd.iloc[-7:]
+            return str(macd.to_json(orient='table'))
+        elif indicator_id == 0:
+            close = stockweek['close']
+            close = close.iloc[-7:]
+            return str(close.to_json(orient='table'))
+        elif indicator_id == 3:
+            macdh = stockweek['macdh']
+            macdh = macdh.iloc[-7:]
+            return str(macdh.to_json(orient='table'))
+        elif indicator_id == 8:
+            rsi = stockweek['rsi_6']
+            rsi = rsi.iloc[-7:]
+            return str(rsi.to_json(orient='table'))
+        elif indicator_id == 5:
+            bollinger_ub = stockweek['boll_ub']
+            bollinger_ub = bollinger_ub.iloc[-7:]
+            return str(bollinger_ub.to_json(orient='table'))
+        elif indicator_id == 6:
+            bollinger_low = stockweek['bollinger_low']
+            bollinger_low = bollinger_low.iloc[-7:]
+            return str(bollinger_low.to_json(orient='table'))
+
+
 @app.route('/chart/indicator/<int:indicator_id>')
 def get_indicator_chart(indicator_id):
     if request.method == 'GET':
@@ -237,10 +378,11 @@ def get_indicator_chart(indicator_id):
             rsi = stockchart['rsi_6']
             return str(rsi.to_json(orient='table'))
         if indicator_id == 5:
-            bollinger = stockchart['boll_ub']
-            return str(bollinger.to_json(orient='table'))
+            bollinger_ub = stockchart['boll_ub']
+            return str(bollinger_ub.to_json(orient='table'))
         if indicator_id == 6:
             bollinger_low = stockchart['boll_lb']
+            return str(bollinger_low.to_json(orient='table'))
 
 
 @app.route('/signal/getall')

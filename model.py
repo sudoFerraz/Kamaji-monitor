@@ -16,7 +16,12 @@ class CSV(Base):
     csv_name = Column(String)
 
 
-class User(Base):
+class Strategy_type(Base):
+    __tablename__ = 'Strategy_type'
+    id = Column(Integer, primary_key=True)
+    trade_type = Column(Integer)
+
+class Users(Base):
 
     __tablename__ = 'Users'
     id = Column(Integer, primary_key=True)
@@ -25,9 +30,6 @@ class User(Base):
     password = Column(String)
     usertype = Column(String)
 
-    def __repr__(self):
-        return "<User>(name='%s', usertype='%s')>" %(self.name, self.password,\
-                                                     self.usertype)
 
 class Raw_data(Base):
 
@@ -83,7 +85,7 @@ class Action(Base):
     __tablename__ = "Action"
     id = Column(Integer, primary_key=True)
     date = Column(DateTime, server_default=func.now())
-    performed_by = Column(Integer, ForeignKey(User.id))
+    performed_by = Column(Integer, ForeignKey(Users.id))
     invoice_acted = Column(Integer, ForeignKey(Invoice.id))
 
 class Indicator(Base):
