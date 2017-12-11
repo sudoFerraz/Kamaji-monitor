@@ -120,13 +120,9 @@ def delete_invoice(invoice_id):
     invoice_handler.delete_invoice(session, invoice_id)
     return "ok"
 
-@app.route('/strategy/set', methods=['POST'])
-def set_strategy():
-    if request.method == 'POST':
-        strategy = request.form['strategy']
-        return True
-
-
+@app.route('/invoice/notification/activate/<string:invoice_id>')
+def active_invoice_notification(invoice_id):
+    return "ok"
 
 
 @app.route('/contact/register/<string:name>/<string:email>/<string:phone>')
@@ -138,16 +134,12 @@ def register_contact(name, email, phone):
         except:
             return "ERRO"
 
-@app.route('/strategy/getall')
-def get_all_strategy():
-    if request.method == 'GET':
-        return "ok"
 
 @app.route('/contact/getall')
 def get_all_contacts():
     if request.method == 'GET':
         contacts = contact_handler.get_all_contacts(session)
-        return str(contacts)
+        return str(contacts).replace("'", "")
 
 @app.route('/invoice/getopen')
 def get_open_invoices():
@@ -162,14 +154,14 @@ def get_closed_invoices():
         return str(closed_invoices).replace("'", "")
 
 
-@app.route('/invoice/set_payment/<int:nro_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
-def testing(nro_invoice, dt_pagamento, dolar_pagamento, valor_pago):
+@app.route('/invoice/set_payment/<int:id_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
+def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago):
     if request.method == 'GET':
-        try:
-            invoice_handler.set_payment(session, nro_invoice, dt_pagamento, dolar_pagamento, valor_pago)
-            return 'OK'
-        except:
-            return 'ERRO'
+        paid = invoice_handler.set_payment(session, id_invoice, dt_pagamento, dolar_pagamento, valor_pago)
+        if not paid:
+            return "erro"
+        else:
+            return "ok"
 
 @app.route('/indicator/getdata/high')
 def get_high():
@@ -179,10 +171,19 @@ def get_high():
         return str(high)
 
 
-@app.route('/strategy/<int:indicator_id>')
-def get_strategy():
+@app.route('/strategy/getdata/<int:indicator_id>')
+def get_strategy(indicator_id):
     if request.method == 'GET':
-        pass
+        found_strategy = strategy_handler.get_strategy_by_indicator(session, indicator_id)
+        if not found_strategy:
+            return "erro"
+        else:
+            req = {}
+            req['indicator'] = found_strategy.indicator
+            req['days_past'] = found_strategy.days_past
+            req['accuracy'] = found_strategy.accuracy
+            req['active'] = found_strategy.accuracy
+            return str(json.dumps(req)).replace("'", "")
 
 @app.route('/chart/getall/line')
 def get_chart():
@@ -190,11 +191,17 @@ def get_chart():
         line_chart = f['Close']
         return str(line_chart.to_json(orient='table'))
 
+@app.route('/chart/getall/candle')
+def get_candle():
+    if request.method == 'GET':
+        candlestick = f
+        return str(f.to_json(orient='table'))
+
 #good buy a fazer para o barraca
 @app.route('/overview')
 def get_overview():
     if request.method == 'GET':
-        return 'True'
+        return 'False'
 
 @app.route('/indicator/getdata/low')
 def get_low():
@@ -234,7 +241,7 @@ def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento,
         return "ok"
 
 
-@app.route('/strategy/indicator_days/<int:indicator_id>')
+@app.route('/strategy/indicatordays/<int:indicator_id>')
 def get_indicator_strategy(indicator_id):
     days = strategy_handler.get_strategy_indicator_days(session, indicator_id)
     return str(days)
@@ -260,7 +267,7 @@ def get_indicators():
 def get_notifications():
     if request.method == 'GET':
         notifications = notification_handler.get_all_notifications(session)
-        return str(notifications)
+        return str(notifications).replace("'", "")
 
 #@app.route('/invoice/getall')
 #def get_invoices():
@@ -301,7 +308,29 @@ def get_indicator_year_chart(indicator_id):
             bollinger_low = bollinger_low.iloc[-365:]
             return str(bollinger_low.to_json(orient='table'))
 
+@app.route('/strategy/getall')
+def get_all_strategies():
+    found = strategy_handler.get_all(session)
+    if not found:
+        return "erro"
+    else:
+        return str(found)
 
+@app.route('/strategy/updateaccuracy/<int:indicator_id>/<int:accuracy>')
+def update_strategy_accuracy(indicator_id, accuracy):
+    updated = strategy_handler.update_accuracy(session, indicator_id, accuracy)
+    if not updated:
+        return "erro"
+    else:
+        return "ok"
+
+@app.route('/strategy/updateflag/<int:indicator_id>/<int:flag>')
+def update_strategy_flag(indicator_id, flag):
+    updated = strategy_handler.update_flag(session, indicator_id, flag)
+    if updated:
+        return "ok"
+    else:
+        return "erro"
 
 @app.route('/chart/month/indicator/<int:indicator_id>')
 def get_indicator_month_chart(indicator_id):

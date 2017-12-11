@@ -30,7 +30,7 @@ class ostools(object):
 
 class strategy_type_handler(object):
 
-    def update_strategy_type(session, newtype):
+    def update_strategy_type(self, session, newtype):
         strategy = session.query(model.Strategy_type).filter_by(id=1).first()
         strategy.type = newtype
         session.commit()
@@ -217,6 +217,14 @@ class notification_handler(object):
             return found_notification
         else:
             return False
+
+    def get_last_notification(self, session):
+        last_notification = session.query(Notification).order_by(Notification.id.desc()).first()
+        if not last_notification:
+            return False
+        else:
+            return last_notification
+
     def get_all_notifications(self, session):
         notifications = session.query(Notification).all()
         notification_list = []
@@ -297,16 +305,16 @@ class invoice_handler(object):
         else:
             return False
 
-    def set_payment(self, session, nunro_invoice, nudt_pagamento, nudolar_pagamento, nuvalor_pago):
-        found_invoice = session.query(Invoice).filter_by(nro_invoice=nunro_invoice).first()
-        if found_invoice.nro_invoice == nunro_invoice:
+    def set_payment(self, session, invoice_id, nudt_pagamento, nudolar_pagamento, nuvalor_pago):
+        found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
+        if found_invoice.id == invoice_id:
             found_invoice.dt_pagamento = nudt_pagamento
             found_invoice.dolar_pagamento = nudolar_pagamento
             found_invoice.valor_pago = nuvalor_pago
             found_invoice.status = 'encerrada'
             session.commit()
             session.flush()
-            return True
+            return found_invoice
         else:
             return False
 
@@ -327,6 +335,7 @@ class invoice_handler(object):
             for found_invoice in invoices:
                 if found_invoice.status == 'aberta':
                     new_invoice = {}
+                    new_invoice['id'] = found_invoice.id
                     new_invoice['nro_invoice'] = found_invoice.nro_invoice
                     new_invoice['resp_invoice'] = found_invoice.resp_invoice
                     new_invoice['tipo'] = found_invoice.tipo
@@ -355,19 +364,20 @@ class invoice_handler(object):
             for invoice in invoices:
                 if invoice.status == 'encerrada':
                     new_invoice = {}
-                    new_invoice['nro_invoice'] = found_invoice.nro_invoice
-                    new_invoice['resp_invoice'] = found_invoice.resp_invoice
-                    new_invoice['tipo'] = found_invoice.tipo
-                    new_invoice['dt_emissao'] = found_invoice.dt_emissao
-                    new_invoice['dt_vencimento'] = found_invoice.dt_vencimento
-                    new_invoice['dt_pagamento'] = found_invoice.dt_pagamento
-                    new_invoice['fornecedor'] = found_invoice.fornecedor
-                    new_invoice['valor_invoice'] = found_invoice.valor_invoice
-                    new_invoice['dolar_provisao'] = found_invoice.dolar_provisao
-                    new_invoice['dolar_pagamento'] = found_invoice.dolar_pagamento
-                    new_invoice['valor_pago'] = found_invoice.valor_pago
-                    new_invoice['status'] = found_invoice.status
-                    new_invoice['observacao'] = found_invoice.observacao
+                    new_invoice['id'] = invoice.id
+                    new_invoice['nro_invoice'] = invoice.nro_invoice
+                    new_invoice['resp_invoice'] = invoice.resp_invoice
+                    new_invoice['tipo'] = invoice.tipo
+                    new_invoice['dt_emissao'] = invoice.dt_emissao
+                    new_invoice['dt_vencimento'] = invoice.dt_vencimento
+                    new_invoice['dt_pagamento'] = invoice.dt_pagamento
+                    new_invoice['fornecedor'] = invoice.fornecedor
+                    new_invoice['valor_invoice'] = invoice.valor_invoice
+                    new_invoice['dolar_provisao'] = invoice.dolar_provisao
+                    new_invoice['dolar_pagamento'] = invoice.dolar_pagamento
+                    new_invoice['valor_pago'] = invoice.valor_pago
+                    new_invoice['status'] = invoice.status
+                    new_invoice['observacao'] = invoice.observacao
                     new_invoice = json.dumps(new_invoice)
                     invoice_list.append(new_invoice)
             return invoice_list
@@ -382,6 +392,7 @@ class invoice_handler(object):
         else:
             for found_invoice in invoices:
             	new_invoice = {}
+                new_invoice['id'] = found_invoice.id
             	new_invoice['nro_invoice'] = found_invoice.nro_invoice
             	new_invoice['resp_invoice'] = found_invoice.resp_invoice
             	new_invoice['tipo'] = found_invoice.tipo
@@ -414,6 +425,26 @@ class contact_handler(object):
         found_contact = session.query(Contact).filter_by(email=contact_email).delete()
         session.commit()
         session.flush()
+
+    def get_all_phones(self, session):
+        all_contacts = session.query(Contact).all()
+        if not all_contact:
+            return False
+        else:
+            phone_list = []
+            for contact in all_contacts:
+                phone_list.append(contact.phone)
+            return phone_list
+
+    def get_all_emails(self, session):
+        all_contacts = session.query(Contact).all()
+        if not all_contacts:
+            return False
+        else:
+            email_list = []
+            for contact in all_contacts:
+                email_list.append(contact.email)
+            return email_list
 
     def get_all_contacts(self, session):
         found_contact = session.query(Contact).all()
@@ -462,9 +493,30 @@ class type_handler(object):
         return True
 
 class strategy_handler(object):
-    def create_strategy(self, session, indicator_id, min_days, new_accuracy):
-        new_strategy = model.Strategy(indicator=indicator_id, days_past=min_days, accuracy=new_accuracy)
-        session.rollback()
+
+    def get_all(self, session):
+        strategies = session.query(model.Strategy).all()
+        if not strategies:
+            return "erro"
+        else:
+            strategy_list = []
+            for strategy in strategies:
+                req = {}
+                req['id'] = strategy.id
+                req['indicator'] = strategy.indicator
+                req['days_past'] = strategy.days_past
+                req['accuracy'] = strategy.accuracy
+                req['active'] = strategy.active
+                strategy_list.append(json.dumps(req))
+            return str(strategy_list).replace("'", "")
+
+
+    def create_strategy(self, session, indicator_id, min_days, new_accuracy, flag):
+        if flag == 1:
+            flag = True
+        elif flag == 0:
+            flag = False
+        new_strategy = model.Strategy(indicator=indicator_id, days_past=min_days, accuracy=new_accuracy, active=flag)
         session.add(new_strategy)
         session.commit()
         session.flush()
@@ -482,12 +534,45 @@ class strategy_handler(object):
 
     def get_strategy_indicator_days(self, session, indicator_id):
         found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
-        return found_strategy.days_past
+        return str(found_strategy.days_past)
 
     def delete_strategy(self, session, indicator_id):
         deleted_strategy = session.query(Strategy).filter_by(indicator=indicator_id).delete()
         session.commit()
         session.flush()
+
+    def update_accuracy(self, session, indicator_id, new_accuracy):
+        found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
+        if not found_strategy:
+            return False
+        else:
+            found_strategy.accuracy = new_accuracy
+            session.commit()
+            session.flush()
+            return found_strategy
+
+    def update_days(self, session, indicator_id, new_min_days):
+        found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
+        if not found_strategy:
+            return False
+        else:
+            found_strategy.days_past = new_min_days
+            session.commit()
+            session.flush()
+
+    def update_flag(self, session, indicator_id, flag):
+        found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
+        if not found_strategy:
+            return False
+        else:
+            if flag == 1:
+                flag = True
+            elif flag == 0:
+                flag = False
+            found_strategy.active = flag
+            session.commit()
+            session.flush()
+            return found_strategy
 
     def update_strategy(self, session, indicator_id, new_min_days, new_accuracy):
         found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()

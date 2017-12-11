@@ -95,12 +95,14 @@ class Indicator(Base):
     date = Column(DateTime, server_default=func.now())
     value = Column(Float)
 
+#Resetar tabela
 class Strategy(Base):
     __tablename__ = "Strategy"
     id = Column(Integer, primary_key=True)
     indicator = Column(Integer, ForeignKey(Indicator.id))
     days_past = Column(Integer)
     accuracy = Column(Float)
+    active = Column(Boolean)
 
 
 
