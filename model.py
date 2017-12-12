@@ -14,7 +14,14 @@ class CSV(Base):
     id = Column(Integer, primary_key=True)
     csv_file = Column(LargeBinary)
     csv_name = Column(String)
-
+"""
+class Relatorios(Base):
+    __tablename__ = 'Relatorios'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    csv_id = Column(Integer, ForeignKey('CSV.id'))
+    download = Column(String)
+"""
 
 class Strategy_type(Base):
     __tablename__ = 'Strategy_type'

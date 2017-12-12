@@ -15,6 +15,7 @@ import sqlalchemy
 from flask_admin import Admin
 import pandas_datareader as web
 from datetime import datetime, timedelta
+import requests
 
 f = web.DataReader("BRL=X", 'yahoo')
 
@@ -65,6 +66,10 @@ def teste():
     return "teste"
 
 
+@app.route('/user/photo/<int:user_id>')
+def get_user_photo(user_id):
+    if request.method == 'GET':
+        return "https://static1.squarespace.com/static/56db06fc9f7266f8a1014e34/5719458562cd94dacdd6a50a/5719462127d4bd85045c5165/1461274632428/128-youtube.png"
 
 @app.route('/checkbox/<int:choice>', methods=['GET'])
 def checkbox_markup(choice):
@@ -84,10 +89,11 @@ def login(email, password):
             return "erro"
         if found:
             req = {}
+            req['id'] = found.id
             req['name'] = found.name
             req['usertype'] = found.usertype
             req = json.dumps(req)
-            return req
+            return str(req)
 """
 
 #rota de login
@@ -166,9 +172,13 @@ def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago):
 @app.route('/indicator/getdata/high')
 def get_high():
     if request.method == 'GET':
-        high = f['High']
-        high = high[-1]
-        return str(high)
+        r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
+            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
+        ticker = r.json()['d'][0]['v']
+        return str(ticker['high_price'])
+        #high = f['High']
+        #high = high[-1]
+        #return str(high)
 
 
 @app.route('/strategy/getdata/<int:indicator_id>')
@@ -206,9 +216,10 @@ def get_overview():
 @app.route('/indicator/getdata/low')
 def get_low():
     if request.method == 'GET':
-        low = f['Low']
-        low = low[-1]
-        return str(low)
+        r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
+            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
+        ticker = r.json()['d'][0]['v']
+        return str(ticker['low_price'])
 
 @app.route('/invoice/update/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
 def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
@@ -239,6 +250,18 @@ def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento,
     if request.method == 'GET':
         invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
         return "ok"
+
+@app.route('/strategy/setindicatordays/<int:indicator_id>/<int:newday>')
+def set_strategy_days(indicator_id, newday):
+    found = strategy_handler.update_days(session, indicator_id, newday)
+    if not found:
+        return "erro"
+    else:
+        return "ok"
+
+@app.route('/relatorio/getall')
+def get_all_relatorio():
+    return "true"
 
 
 @app.route('/strategy/indicatordays/<int:indicator_id>')
@@ -304,7 +327,7 @@ def get_indicator_year_chart(indicator_id):
             bollinger_ub = bollinger_ub.iloc[-365:]
             return str(bollinger_ub.to_json(orient='table'))
         elif indicator_id == 6:
-            bollinger_low = stockyear['bollinger_low']
+            bollinger_low = stockyear['boll_lb']
             bollinger_low = bollinger_low.iloc[-365:]
             return str(bollinger_low.to_json(orient='table'))
 
@@ -358,7 +381,7 @@ def get_indicator_month_chart(indicator_id):
             bollinger_ub = bollinger_ub.iloc[-30:]
             return str(bollinger_ub.to_json(orient='table'))
         elif indicator_id == 6:
-            bollinger_low = stockmonth['bollinger_low']
+            bollinger_low = stockmonth['boll_lb']
             bollinger_low = bollinger_low.iloc[-30:]
             return str(bollinger_low.to_json(orient='table'))
 
@@ -388,7 +411,7 @@ def get_indicator_week_chart(indicator_id):
             bollinger_ub = bollinger_ub.iloc[-7:]
             return str(bollinger_ub.to_json(orient='table'))
         elif indicator_id == 6:
-            bollinger_low = stockweek['bollinger_low']
+            bollinger_low = stockweek['boll_lb']
             bollinger_low = bollinger_low.iloc[-7:]
             return str(bollinger_low.to_json(orient='table'))
 

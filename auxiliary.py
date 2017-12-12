@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.scoping import scoped_session
 import json
 import hashlib
+import requests
 
 
 from model import Users, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
@@ -48,7 +49,7 @@ class user_handler(object):
         return newuser
 
     def verify_user(self, session, useremail, userpass):
-        founduser = session.query(Users).filter_by(email=useremail).first()
+        founduser = session.query(model.Users).filter_by(email=useremail).first()
         if not founduser:
             return False
         else:
@@ -559,6 +560,7 @@ class strategy_handler(object):
             found_strategy.days_past = new_min_days
             session.commit()
             session.flush()
+            return found_strategy
 
     def update_flag(self, session, indicator_id, flag):
         found_strategy = session.query(Strategy).filter_by(indicator=indicator_id).first()
@@ -639,8 +641,26 @@ class indicator_handler(object):
         session.flush()
         return new_indicator
 
+    def get_ticker(self, session):
+        r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
+            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
+        ticker = r.json()['d'][0]['v']
+        return ticker
+
+
     def get_indicator(self, session, indicator_id):
         found_indicator = session.query(Indicator).filter_by(id=indicator_id).first()
+        if indicator_id == 10:
+            r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
+            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
+            ticker = r.json()['d'][0]['v']
+            change = (((float(ticker['lp']) / float(ticker['prev_close_price'])) - 1 ) * 100)
+            return change
+        if indicator_id == 7:
+            r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
+            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
+            ticker = r.json()['d'][0]['v']
+            return ticker['lp']
         if not found_indicator:
             return False
         if found_indicator.id == indicator_id:
