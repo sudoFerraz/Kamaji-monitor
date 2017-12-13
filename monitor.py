@@ -357,7 +357,7 @@ def monitor():
     #py.offline.plot(data, filename='Updated_historical')
     #plt.plot(macd)
     #plt.plot(macd_signal_line)
-    plt.plot(close_price)
-    plt.savefig('close_price.png')
+    #plt.plot(close_price)
+    #plt.savefig('close_price.png')
         #print a
     return
