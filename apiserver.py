@@ -484,4 +484,4 @@ def get_signals():
         signals = signal_handler.get_all_signals(session)
         return str(signals)
 
-app.run(host='0.0.0.0')
+#app.run(host='0.0.0.0')
