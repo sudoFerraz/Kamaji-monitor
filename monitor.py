@@ -2,16 +2,16 @@ import model
 import auxiliary
 import time
 import numpy as np
-import plotly as py
-import plotly.graph_objs as go
-from plotly.graph_objs import *
+#import plotly as py
+#import plotly.graph_objs as go
+#from plotly.graph_objs import *
 import pandas_datareader.data as web
 from datetime import datetime
 import stockstats
 import pandas as pd
 from stockstats import StockDataFrame
 import datetime as dt
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from pyfiglet import Figlet
 from prettytable import PrettyTable
 table = PrettyTable()
