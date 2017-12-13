@@ -4,6 +4,7 @@ import auxiliary
 from flask import Flask, render_template
 from flask import jsonify
 from flask import request
+from flask_cors import CORS, cross_origin
 import json
 import pandas as pd
 from stockstats import StockDataFrame
@@ -22,12 +23,15 @@ f = web.DataReader("BRL=X", 'yahoo')
 
 
 app = Flask(__name__, template_folder='')
+cors = CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/postgres'
 app.config['SECRET_KEY'] = 'postgres'
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 db = SQLAlchemy(app)
 admin = Admin(app)
+
 
 os_tools = auxiliary.ostools()
 session = os_tools.db_connection()
@@ -58,20 +62,24 @@ def app_teardown(response_or_exc):
  #       return True
 
 @app.route('/')
+@cross_origin()
 def index():
     return "Index"
 
 @app.route('/teste')
+@cross_origin()
 def teste():
     return "teste"
 
 
 @app.route('/user/photo/<int:user_id>')
+@cross_origin()
 def get_user_photo(user_id):
     if request.method == 'GET':
         return "https://static1.squarespace.com/static/56db06fc9f7266f8a1014e34/5719458562cd94dacdd6a50a/5719462127d4bd85045c5165/1461274632428/128-youtube.png"
 
 @app.route('/checkbox/<int:choice>', methods=['GET'])
+@cross_origin()
 def checkbox_markup(choice):
     if request.method == 'GET':
         found = strategy_type_handler.update_strategy_type(session, choice)
@@ -82,6 +90,7 @@ def checkbox_markup(choice):
 
 #Fazer retornar os codigos
 @app.route('/login/<string:email>/<string:password>', methods=['GET'])
+@cross_origin()
 def login(email, password):
     if request.method == 'GET':
         found = user_handler.verify_user(session, email, password)
@@ -110,6 +119,7 @@ def register():
             """
 
 @app.route('/contact/delete/<string:email>')
+@cross_origin()
 def delete_contact(email):
     if request.method == 'GET':
         try:
@@ -122,6 +132,7 @@ def delete_contact(email):
 type_handler = auxiliary.type_handler()
 
 @app.route('/invoice/delete/<string:invoice_id>')
+@cross_origin()
 def delete_invoice(invoice_id):
     invoice_handler.delete_invoice(session, invoice_id)
     return "ok"
@@ -132,6 +143,7 @@ def active_invoice_notification(invoice_id):
 
 
 @app.route('/contact/register/<string:name>/<string:email>/<string:phone>')
+@cross_origin()
 def register_contact(name, email, phone):
     if request.method == 'GET':
         try:
@@ -142,18 +154,21 @@ def register_contact(name, email, phone):
 
 
 @app.route('/contact/getall')
+@cross_origin()
 def get_all_contacts():
     if request.method == 'GET':
         contacts = contact_handler.get_all_contacts(session)
         return str(contacts).replace("'", "")
 
 @app.route('/invoice/getopen')
+@cross_origin()
 def get_open_invoices():
     if request.method == 'GET':
         opened_invoices = invoice_handler.get_all_open(session)
         return str(opened_invoices).replace("'", "")
 
 @app.route('/invoice/getclose')
+@cross_origin()
 def get_closed_invoices():
     if request.method == 'GET':
         closed_invoices = invoice_handler.get_all_closed(session)
@@ -161,6 +176,7 @@ def get_closed_invoices():
 
 
 @app.route('/invoice/set_payment/<int:id_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
+@cross_origin()
 def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago):
     if request.method == 'GET':
         paid = invoice_handler.set_payment(session, id_invoice, dt_pagamento, dolar_pagamento, valor_pago)
@@ -170,6 +186,7 @@ def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago):
             return "ok"
 
 @app.route('/indicator/getdata/high')
+@cross_origin()
 def get_high():
     if request.method == 'GET':
         r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
@@ -182,6 +199,7 @@ def get_high():
 
 
 @app.route('/strategy/getdata/<int:indicator_id>')
+@cross_origin()
 def get_strategy(indicator_id):
     if request.method == 'GET':
         found_strategy = strategy_handler.get_strategy_by_indicator(session, indicator_id)
@@ -196,12 +214,14 @@ def get_strategy(indicator_id):
             return str(json.dumps(req)).replace("'", "")
 
 @app.route('/chart/getall/line')
+@cross_origin()
 def get_chart():
     if request.method == 'GET':
         line_chart = f['Close']
         return str(line_chart.to_json(orient='table'))
 
 @app.route('/chart/getall/candle')
+@cross_origin()
 def get_candle():
     if request.method == 'GET':
         candlestick = f
@@ -209,11 +229,13 @@ def get_candle():
 
 #good buy a fazer para o barraca
 @app.route('/overview')
+@cross_origin()
 def get_overview():
     if request.method == 'GET':
         return 'False'
 
 @app.route('/indicator/getdata/low')
+@cross_origin()
 def get_low():
     if request.method == 'GET':
         r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
@@ -222,6 +244,7 @@ def get_low():
         return str(ticker['low_price'])
 
 @app.route('/invoice/update/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+@cross_origin()
 def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
     if request.method == 'GET':
         try:
@@ -233,6 +256,7 @@ def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, f
 
 
 @app.route('/invoice/getdata/<int:nro_invoice>')
+@cross_origin()
 def get_invoice(nro_invoice):
     if request.method == 'GET':
         found_invoice = invoice_handler.get_invoice(session, nro_invoice)
@@ -240,18 +264,21 @@ def get_invoice(nro_invoice):
 
 
 @app.route('/invoice/getall')
+@cross_origin()
 def invoice_geatll():
     if request.method == 'GET':
         found_invoices = invoice_handler.get_all_invoices(session)
         return str(found_invoices).replace("'", "")
 
 @app.route('/invoice/register/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+@cross_origin()
 def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
     if request.method == 'GET':
         invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
         return "ok"
 
 @app.route('/strategy/setindicatordays/<int:indicator_id>/<int:newday>')
+@cross_origin()
 def set_strategy_days(indicator_id, newday):
     found = strategy_handler.update_days(session, indicator_id, newday)
     if not found:
@@ -260,33 +287,39 @@ def set_strategy_days(indicator_id, newday):
         return "ok"
 
 @app.route('/relatorio/getall')
+@cross_origin()
 def get_all_relatorio():
     return "true"
 
 
 @app.route('/strategy/indicatordays/<int:indicator_id>')
+@cross_origin()
 def get_indicator_strategy(indicator_id):
     days = strategy_handler.get_strategy_indicator_days(session, indicator_id)
     return str(days)
 
 @app.route('/invoice/getdata/<int:invoiceid>')
+@cross_origin()
 def get_invoice_data():
     invoice = invoice_handler.get_invoice(invoiceid)
     return invoice
 
 @app.route('/indicator/getdata/<int:indicator_id>')
+@cross_origin()
 def get_indicator_data(indicator_id):
     indicator = indicator_handler.get_indicator(session, indicator_id)
  #   indicator = indicator.__dict__
     return str(indicator)
 
 @app.route('/indicator/getall')
+@cross_origin()
 def get_indicators():
     if request.method == 'GET':
         indicators = indicator_handler.get_all_indicators(session)
         return str(indicators)
 
 @app.route('/notification/getall')
+@cross_origin()
 def get_notifications():
     if request.method == 'GET':
         notifications = notification_handler.get_all_notifications(session)
@@ -302,6 +335,7 @@ stockchart = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
 
 
 @app.route('/chart/year/indicator/<int:indicator_id>')
+@cross_origin()
 def get_indicator_year_chart(indicator_id):
     yeardata = web.DataReader('BRL=X', 'yahoo')
     stockyear = StockDataFrame.retype(yeardata)
@@ -332,6 +366,7 @@ def get_indicator_year_chart(indicator_id):
             return str(bollinger_low.to_json(orient='table'))
 
 @app.route('/strategy/getall')
+@cross_origin()
 def get_all_strategies():
     found = strategy_handler.get_all(session)
     if not found:
@@ -340,6 +375,7 @@ def get_all_strategies():
         return str(found)
 
 @app.route('/strategy/updateaccuracy/<int:indicator_id>/<int:accuracy>')
+@cross_origin()
 def update_strategy_accuracy(indicator_id, accuracy):
     updated = strategy_handler.update_accuracy(session, indicator_id, accuracy)
     if not updated:
@@ -348,6 +384,7 @@ def update_strategy_accuracy(indicator_id, accuracy):
         return "ok"
 
 @app.route('/strategy/updateflag/<int:indicator_id>/<int:flag>')
+@cross_origin()
 def update_strategy_flag(indicator_id, flag):
     updated = strategy_handler.update_flag(session, indicator_id, flag)
     if updated:
@@ -356,6 +393,7 @@ def update_strategy_flag(indicator_id, flag):
         return "erro"
 
 @app.route('/chart/month/indicator/<int:indicator_id>')
+@cross_origin()
 def get_indicator_month_chart(indicator_id):
     monthdata = web.DataReader('BRL=X', 'yahoo')
     stockmonth = StockDataFrame.retype(monthdata)
@@ -386,6 +424,7 @@ def get_indicator_month_chart(indicator_id):
             return str(bollinger_low.to_json(orient='table'))
 
 @app.route('/chart/week/indicator/<int:indicator_id>')
+@cross_origin()
 def get_indicator_week_chart(indicator_id):
     weekdata = web.DataReader('BRL=X', 'yahoo')
     stockweek = StockDataFrame.retype(weekdata)
@@ -417,6 +456,7 @@ def get_indicator_week_chart(indicator_id):
 
 
 @app.route('/chart/indicator/<int:indicator_id>')
+@cross_origin()
 def get_indicator_chart(indicator_id):
     if request.method == 'GET':
         #macd 1, macdh 3, rsi 8, bollinger 4
@@ -438,6 +478,7 @@ def get_indicator_chart(indicator_id):
 
 
 @app.route('/signal/getall')
+@cross_origin()
 def get_signals():
     if request.method == 'GET':
         signals = signal_handler.get_all_signals(session)
