@@ -9,7 +9,7 @@ import stockstats
 import pandas as pd
 from stockstats import StockDataFrame
 import datetime as dt
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from pyfiglet import Figlet
 from prettytable import PrettyTable
 table = PrettyTable()
