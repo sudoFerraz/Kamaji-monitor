@@ -91,9 +91,12 @@ class Action(Base):
 
     __tablename__ = "Action"
     id = Column(Integer, primary_key=True)
-    date = Column(DateTime, server_default=func.now())
+    date_time = Column(DateTime, server_default=func.now())
     performed_by = Column(Integer, ForeignKey(Users.id))
     invoice_acted = Column(Integer, ForeignKey(Invoice.id))
+    action_type = Column(String)
+    notification_acted = Column(Integer, ForeignKey(Notification.id))
+    strategy_acted = Column(Integer, ForeignKey(Strategy.id))
 
 class Indicator(Base):
     __tablename__ = "Indicator"
