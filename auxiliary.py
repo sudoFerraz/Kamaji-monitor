@@ -7,10 +7,12 @@ from sqlalchemy.orm.scoping import scoped_session
 import json
 import hashlib
 import requests
-
+import pandas_datareader as web
 
 from model import Users, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
 import model
+
+
 
 class ostools(object):
     def __init__(self):
@@ -654,7 +656,9 @@ class indicator_handler(object):
             r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
             headers={"accept": "application/json", "authorization": "Bearer 13982897"})
             ticker = r.json()['d'][0]['v']
-            change = (((float(ticker['lp']) / float(ticker['prev_close_price'])) - 1 ) * 100)
+            df = web.DataReader("BRL=X", "yahoo")
+            prev = df['Close'][-2]
+            change = (((float(ticker['lp']) / float(prev)) - 1 ) * 100)
             return change
         if indicator_id == 7:
             r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
