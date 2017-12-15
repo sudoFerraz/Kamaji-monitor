@@ -50,6 +50,20 @@ class user_handler(object):
         session.flush()
         return newuser
 
+    def change_password(self, session, useremail, newpass):
+        newpass = hashlib.md5(newpass).hexdigest()
+        found_user = session.query(model.Users).filter_by(email=useremail).first()
+        if not found_user:
+            return False
+        else:
+            if found_user.email == useremail:
+                found_user.password = newpass
+                session.commit()
+                session.flush()
+                return "senha resetada com sucesso"
+            else:
+                return False
+
     def verify_user(self, session, useremail, userpass):
         founduser = session.query(model.Users).filter_by(email=useremail).first()
         if not founduser:

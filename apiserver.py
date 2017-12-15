@@ -103,7 +103,20 @@ def login(email, password):
             req['usertype'] = found.usertype
             req = json.dumps(req)
             return str(req)
+
+@app.route('/reset/<string:email>/<string:newpass>', methods=['GET'])
+@cross_origin()
+def password_reset(email, newpass):
+    if request.method == 'GET':
+        found = user_handler.change_password(session, email, newpass)
+        if not found:
+            return "erro, email nao encontrado"
+        else:
+            return str(found)
+
+
 """
+
 
 #rota de login
 @app.route('/login/<string:email>/<string:password>')
@@ -453,6 +466,7 @@ def get_indicator_week_chart(indicator_id):
             bollinger_low = stockweek['boll_lb']
             bollinger_low = bollinger_low.iloc[-7:]
             return str(bollinger_low.to_json(orient='table'))
+
 
 
 @app.route('/chart/indicator/<int:indicator_id>')
