@@ -65,7 +65,7 @@ class Invoice(Base):
 
     __tablename__ = "Invoice"
     id = Column(Integer, primary_key=True)
-    nro_invoice = Column(Integer)
+    nro_invoice = Column(String)
     resp_invoice = Column(String)
     tipo = Column(String)
     dt_emissao = Column(String)
@@ -78,6 +78,7 @@ class Invoice(Base):
     valor_pago = Column(Float)
     status = Column(String)
     observacao = Column(String)
+    imposto = Column(Float)
 
 class Contact(Base):
 
@@ -104,7 +105,7 @@ class Strategy(Base):
     accuracy = Column(Float)
     active = Column(Boolean)
 
-    
+
 class Action(Base):
 
     __tablename__ = "Action"
