@@ -387,9 +387,9 @@ def get_all_strategies():
     else:
         return str(found)
 
-@app.route('/strategy/updateaccuracy/<int:indicator_id>/<int:accuracy>')
+@app.route('/strategy/updateaccuracy/<int:indicator_id>/<int:accuracy>/<int:user_id>')
 @cross_origin()
-def update_strategy_accuracy(indicator_id, accuracy):
+def update_strategy_accuracy(indicator_id, accuracy, user_id):
     updated = strategy_handler.update_accuracy(session, indicator_id, accuracy)
     if not updated:
         return "erro"
