@@ -322,12 +322,13 @@ class invoice_handler(object):
         else:
             return False
 
-    def set_payment(self, session, invoice_id, nudt_pagamento, nudolar_pagamento, nuvalor_pago):
+    def set_payment(self, session, invoice_id, nudt_pagamento, nudolar_pagamento, nuvalor_pago, nuimposto):
         found_invoice = session.query(Invoice).filter_by(id=invoice_id).first()
         if found_invoice.id == invoice_id:
             found_invoice.dt_pagamento = nudt_pagamento
             found_invoice.dolar_pagamento = nudolar_pagamento
             found_invoice.valor_pago = nuvalor_pago
+            found_invoice.imposto = nuimposto
             found_invoice.status = 'encerrada'
             session.commit()
             session.flush()
@@ -395,6 +396,7 @@ class invoice_handler(object):
                     new_invoice['valor_pago'] = invoice.valor_pago
                     new_invoice['status'] = invoice.status
                     new_invoice['observacao'] = invoice.observacao
+                    new_invoice['imposto'] = invoice.imposto
                     new_invoice = json.dumps(new_invoice)
                     invoice_list.append(new_invoice)
             return invoice_list

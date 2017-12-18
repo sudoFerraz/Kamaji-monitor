@@ -192,7 +192,7 @@ def get_closed_invoices():
 @cross_origin()
 def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago, imposto, user_id):
     if request.method == 'GET':
-        paid = invoice_handler.set_payment(session, id_invoice, dt_pagamento, dolar_pagamento, valor_pago)
+        paid = invoice_handler.set_payment(session, id_invoice, dt_pagamento, dolar_pagamento, valor_pago, imposto)
         if not paid:
             return "erro"
         else:
