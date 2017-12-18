@@ -2,6 +2,7 @@ import model
 import auxiliary
 import time
 import numpy as np
+import json
 #import plotly as py
 #import plotly.graph_objs as go
 #from plotly.graph_objs import *
@@ -14,6 +15,7 @@ import datetime as dt
 #import matplotlib.pyplot as plt
 from pyfiglet import Figlet
 from prettytable import PrettyTable
+import requests
 table = PrettyTable()
 df = pd.DataFrame()
 
@@ -114,6 +116,9 @@ def monitor():
     change_2days_ago_mean = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_mean')
     change_2days_ago_std = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_std')
     change_2days_ago_standardized = indicator_handler.get_indicator_by_name(session, 'change_2days_ago_standardized')
+    tv_lp = indicator_handler.get_indicator_by_name(session, 'tv_lp')
+    tv_high = indicator_handler.get_indicator_by_name(session, 'tv_high')
+    tv_low = indicator_handler.get_indicator_by_name(session, 'tv_low')
     bollinger_up_signal = False
     bollinger_low_signal = False
     rsi_signal = False
@@ -127,6 +132,9 @@ def monitor():
     indicadores_dataframe = []
 
 
+    r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
+            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
+    ticker = r.json()['d'][0]['v']
 
 #Inserindo e atualizando o banco de dados com os dados mais novos
     #Macd Signal
@@ -136,6 +144,24 @@ def monitor():
         indicator_handler.update_indicator(session, macd_indicator.id, last_macd)
     except:
         macd_indicator = indicator_handler.create_indicator(session, 'macd', last_macd)
+
+    last_lp = ticker['lp']
+    try:
+        indicator_handler.update_indicator(session, tv_lp.id, last_lp)
+    except:
+        tv_lp = indicator_handler.create_indicator(session, 'tv_lp', last_lp)
+
+    last_high = ticker['high_price']
+    try:
+        indicator_handler.update_indicator(session, tv_high.id, last_high)
+    except:
+        tv_high = indicator_handler.create_indicator(session, 'tv_high', last_high)
+
+    last_low = ticker['low_price']
+    try:
+        indicator_handler.update_indicator(session, tv_low.id, last_low)
+    except:
+        tv_low = indicator_handler.create_indicator(session, 'tv_low', last_low)
 
     last_macd_signal_line = macd_signal_line[-1]
     indicadores_dataframe.append(last_macd_signal_line)

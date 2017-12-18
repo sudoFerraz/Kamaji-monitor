@@ -131,9 +131,9 @@ def register():
             return False
             """
 
-@app.route('/contact/delete/<string:email>')
+@app.route('/contact/delete/<string:email>/<int:user_id>')
 @cross_origin()
-def delete_contact(email):
+def delete_contact(email, user_id):
     if request.method == 'GET':
         try:
             contact_handler.delete_contact(session, email)
@@ -144,9 +144,9 @@ def delete_contact(email):
 
 type_handler = auxiliary.type_handler()
 
-@app.route('/invoice/delete/<string:invoice_id>')
+@app.route('/invoice/delete/<string:invoice_id>/<int:user_id>')
 @cross_origin()
-def delete_invoice(invoice_id):
+def delete_invoice(invoice_id, user_id):
     invoice_handler.delete_invoice(session, invoice_id)
     return "ok"
 
@@ -155,9 +155,9 @@ def active_invoice_notification(invoice_id):
     return "ok"
 
 
-@app.route('/contact/register/<string:name>/<string:email>/<string:phone>')
+@app.route('/contact/register/<string:name>/<string:email>/<string:phone>/<int:user_id>')
 @cross_origin()
-def register_contact(name, email, phone):
+def register_contact(name, email, phone, user_id):
     if request.method == 'GET':
         try:
             new_contact = contact_handler.create_contact(session, name, email, phone)
@@ -188,9 +188,9 @@ def get_closed_invoices():
         return str(closed_invoices).replace("'", "")
 
 
-@app.route('/invoice/set_payment/<int:id_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>')
+@app.route('/invoice/set_payment/<int:id_invoice>/<string:dt_pagamento>/<float:dolar_pagamento>/<float:valor_pago>/<float:imposto>/<int:user_id>')
 @cross_origin()
-def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago):
+def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago, imposto, user_id):
     if request.method == 'GET':
         paid = invoice_handler.set_payment(session, id_invoice, dt_pagamento, dolar_pagamento, valor_pago)
         if not paid:
@@ -202,10 +202,8 @@ def testing(id_invoice, dt_pagamento, dolar_pagamento, valor_pago):
 @cross_origin()
 def get_high():
     if request.method == 'GET':
-        r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
-            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
-        ticker = r.json()['d'][0]['v']
-        return str(ticker['high_price'])
+        found = indicator_handler.get_indicator(session, 36)
+        return str(found)
         #high = f['High']
         #high = high[-1]
         #return str(high)
@@ -251,14 +249,12 @@ def get_overview():
 @cross_origin()
 def get_low():
     if request.method == 'GET':
-        r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
-            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
-        ticker = r.json()['d'][0]['v']
-        return str(ticker['low_price'])
+        found = indicator_handler.get_indicator(session, 37)
+        return str(found)
 
-@app.route('/invoice/update/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+@app.route('/invoice/update/<string:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>/<int:user_id>')
 @cross_origin()
-def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
+def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao, user_id):
     if request.method == 'GET':
         try:
             invoice_handler.update_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
@@ -283,9 +279,9 @@ def invoice_geatll():
         found_invoices = invoice_handler.get_all_invoices(session)
         return str(found_invoices).replace("'", "")
 
-@app.route('/invoice/register/<int:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>')
+@app.route('/invoice/register/<string:nro_invoice>/<string:resp_invoice>/<string:tipo>/<string:dt_emissao>/<string:dt_vencimento>/<string:fornecedor>/<float:valor_invoice>/<float:dolar_provisao>/<string:observacao>/<int:user_id>')
 @cross_origin()
-def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao):
+def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao, user_id):
     if request.method == 'GET':
         invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
         return "ok"
@@ -322,6 +318,10 @@ def get_invoice_data():
 def get_indicator_data(indicator_id):
     indicator = indicator_handler.get_indicator(session, indicator_id)
  #   indicator = indicator.__dict__
+    if indicator_id == 10:
+        prev = f['Close'][-2]
+        change = (((float(indicator) / float(prev)) - 1) * 100)
+        return str(change)
     return str(indicator)
 
 @app.route('/indicator/getall')

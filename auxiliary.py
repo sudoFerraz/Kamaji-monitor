@@ -665,20 +665,10 @@ class indicator_handler(object):
 
 
     def get_indicator(self, session, indicator_id):
+        if indicator_id == 10 or indicator_id == 7:
+            found_indicator = session.query(Indicator).filter_by(name='tv_lp').first()
+            return found_indicator.value
         found_indicator = session.query(Indicator).filter_by(id=indicator_id).first()
-        if indicator_id == 10:
-            r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
-            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
-            ticker = r.json()['d'][0]['v']
-            df = web.DataReader("BRL=X", "yahoo")
-            prev = df['Close'][-2]
-            change = (((float(ticker['lp']) / float(prev)) - 1 ) * 100)
-            return change
-        if indicator_id == 7:
-            r = requests.get("https://rest-demo.tradingview.com/tradingview/v1/quotes?symbols=USDBRL", \
-            headers={"accept": "application/json", "authorization": "Bearer 13982897"})
-            ticker = r.json()['d'][0]['v']
-            return ticker['lp']
         if not found_indicator:
             return False
         if found_indicator.id == indicator_id:
