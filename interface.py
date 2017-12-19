@@ -18,8 +18,14 @@ table = PrettyTable()
 
 
 while True:
-    monitor.monitor()
-    strategy_observer.strategy_observer()
+    try:
+        monitor.monitor()
+    except:
+        pass
+    try:
+        strategy_observer.strategy_observer()
+    except:
+        pass
     f = Figlet(font='epic')
     print f.renderText('Kamaji')
 
@@ -32,8 +38,11 @@ while True:
 
 
     start_date = dt.datetime(1995, 1, 1)
-    df = web.DataReader('BRL=X', 'yahoo')
-    df.to_csv('brlusd.csv', mode='w', header=True)
+    try:
+        df = web.DataReader('BRL=X', 'yahoo')
+        df.to_csv('brlusd.csv', mode='w', header=True)
+    except:
+        pass
     data = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
     close_price = data['close']
     up_bollinger = data['boll_ub']

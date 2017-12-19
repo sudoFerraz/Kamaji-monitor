@@ -318,10 +318,10 @@ def get_invoice_data():
 def get_indicator_data(indicator_id):
     indicator = indicator_handler.get_indicator(session, indicator_id)
  #   indicator = indicator.__dict__
-    if indicator_id == 10:
-        prev = f['Close'][-2]
-        change = (((float(indicator) / float(prev)) - 1) * 100)
-        return str(change)
+    #if indicator_id == 10:
+    #    prev = f['Close'][-2]
+    #    change = (((float(indicator) / float(prev)) - 1) * 100)
+    #    return str(change)
     return str(indicator)
 
 @app.route('/indicator/getall')

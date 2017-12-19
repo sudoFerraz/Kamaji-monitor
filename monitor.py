@@ -119,6 +119,7 @@ def monitor():
     tv_lp = indicator_handler.get_indicator_by_name(session, 'tv_lp')
     tv_high = indicator_handler.get_indicator_by_name(session, 'tv_high')
     tv_low = indicator_handler.get_indicator_by_name(session, 'tv_low')
+    tv_ch = indicator_handler.get_indicator_by_name(session, 'tv_ch')
     bollinger_up_signal = False
     bollinger_low_signal = False
     rsi_signal = False
@@ -144,6 +145,12 @@ def monitor():
         indicator_handler.update_indicator(session, macd_indicator.id, last_macd)
     except:
         macd_indicator = indicator_handler.create_indicator(session, 'macd', last_macd)
+
+    last_ch = ticker['chp']
+    try:
+        indicator_handler.update_indicator(session, tv_ch.id, last_ch)
+    except:
+        tv_ch = indicator_handler.create_indicator(session, 'tv_ch', last_ch)
 
     last_lp = ticker['lp']
     try:

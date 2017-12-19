@@ -667,7 +667,10 @@ class indicator_handler(object):
 
 
     def get_indicator(self, session, indicator_id):
-        if indicator_id == 10 or indicator_id == 7:
+        if indicator_id == 10:
+            found_indicator = session.query(Indicator).filter_by(name='tv_ch').first()
+            return found_indicator.value
+        elif indicator_id == 7:
             found_indicator = session.query(Indicator).filter_by(name='tv_lp').first()
             return found_indicator.value
         found_indicator = session.query(Indicator).filter_by(id=indicator_id).first()
