@@ -104,6 +104,16 @@ def login(email, password):
             req = json.dumps(req)
             return str(req)
 
+@app.route('/register/<string:email>/<string:password>', methods=['GET'])
+@cross_origin()
+def register(email, password):
+    if request.method == 'GET':
+        found = user_handler.create_user(session, email, password, "normal", email)
+        if not found:
+            return "erro"
+        else:
+            return "ok"
+
 @app.route('/reset/<string:email>/<string:newpass>', methods=['GET'])
 @cross_origin()
 def password_reset(email, newpass):

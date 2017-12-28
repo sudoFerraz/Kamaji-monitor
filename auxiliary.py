@@ -43,7 +43,7 @@ class strategy_type_handler(object):
 class user_handler(object):
 
     def create_user(self, session, useremail, userpass, utype, username):
-        newpass = hashlib.md5(userpass).hexdigest()
+        #newpass = hashlib.md5(userpass).hexdigest()
         newuser = model.Users(email=useremail, password=newpass, name=username, usertype=utype)
         session.add(newuser)
         session.commit()
@@ -78,12 +78,12 @@ class user_handler(object):
                 return False
 
     def delete_user(self, session, userid):
-        deleteduser = session.query(User).filter_by(id=userid).delete()
+        deleteduser = session.query(model.Users).filter_by(id=userid).delete()
         session.commit()
         session.flush()
 
     def get_user(self, session, searchemail):
-        founduser = session.query(User).filter_by(email=searchemail).first()
+        founduser = session.query(model.Users).filter_by(email=searchemail).first()
         if not founduser:
             return False
         if founduser.email ==searchemail:
@@ -92,7 +92,7 @@ class user_handler(object):
             return False
 
     def update_user_type(self, session, useremail):
-        founduser = session.query(User).filter_by(email=useremail).first()
+        founduser = session.query(model.Users).filter_by(email=useremail).first()
         if not founduser:
             return False
         if founduser.usertype == 0:
@@ -104,7 +104,7 @@ class user_handler(object):
         return founduser
 
     def update_user_pass(self, session, usernewpass, useremail):
-        founduser = session.query(User).filter_by(email=useremail).first()
+        founduser = session.query(model.Users).filter_by(email=useremail).first()
         if not founduser:
             return False
         founduser.password = usernewpass
