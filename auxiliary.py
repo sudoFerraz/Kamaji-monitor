@@ -44,7 +44,7 @@ class user_handler(object):
 
     def create_user(self, session, useremail, userpass, utype, username):
         #newpass = hashlib.md5(userpass).hexdigest()
-        newuser = model.Users(email=useremail, password=newpass, name=username, usertype=utype)
+        newuser = model.Users(email=useremail, password=userpass, name=username, usertype=utype)
         session.add(newuser)
         session.commit()
         session.flush()
