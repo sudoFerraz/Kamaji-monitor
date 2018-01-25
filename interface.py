@@ -60,6 +60,7 @@ while True:
     close_12_ema = data['close_12_ema']
     close_26_ema = data['close_26_ema']
     last_close_price = close_price[-1]
+    data.to_csv('all_indicators.csv', mode='w', header=True)
 
     bollinger_up_indicator = indicator_handler.get_indicator_by_name(session, 'bollinger_up')
     bollinger_up_mean = indicator_handler.get_indicator_by_name(session, 'bollinger_up_mean')
