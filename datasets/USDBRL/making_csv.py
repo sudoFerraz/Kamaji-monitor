@@ -94,7 +94,7 @@ mdm14.to_csv('mdm14.csv', mode='w', header=True)
 trix.to_csv('trix.csv', mode='w', header=True)
 matrix.to_csv('matrix.csv', mode='w', header=True)
 
-
+#series to df
 #macd = pd.DataFrame({'Date':macd.index, 'macd':macd.values})
 
 #for i, row in macd.iterrows():
