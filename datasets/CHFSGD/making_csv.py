@@ -3,7 +3,7 @@ import pandas_datareader as web
 import stockstats
 from stockstats import StockDataFrame
 
-df = web.DataReader('BRL=X', 'yahoo')
+df = web.DataReader('CHFSGD=X', 'yahoo')
 df.to_csv('brlusd.csv', mode='w', header=True)
 data = StockDataFrame.retype(df)
 close_price = data['close']
