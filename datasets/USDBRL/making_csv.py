@@ -6,7 +6,6 @@ from stockstats import StockDataFrame
 
 indicators = {}
 df = web.DataReader('BRL=X', 'yahoo')
-df.to_csv('brlusd.csv', mode='w', header=True)
 data = StockDataFrame.retype(df)
 close_price = data['close']
 indicators['close_price'] = close_price
@@ -146,7 +145,7 @@ def normalize(dic):
 		name = str(name)
 		for i in range(0, len(indicator)):
 			indicator.iloc[i] = (indicator.iloc[i] - mean)/std
-		nome = "normalized" + name + ".csv"
+		nome = "normalized_" + name + ".csv"
 		indicator.to_csv(nome, mode='w', header=True)
 
 
