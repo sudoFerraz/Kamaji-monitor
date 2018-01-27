@@ -5,12 +5,12 @@ from stockstats import StockDataFrame
 
 
 indicators = {}
-df = web.DataReader('BRL=X', 'yahoo')
+df = web.DataReader('EURNOK=X', 'yahoo')
 data = StockDataFrame.retype(df)
 close_price = data['close']
 indicators['close_price'] = close_price
 low_bollinger = data['boll_lb']
-indicators['low_bollinger'] = low_bollinger 
+indicators['low_bollinger'] = low_bollinger
 up_bollinger = data['boll_ub']
 indicators['up_bollinger'] = up_bollinger
 rsi6 = data['rsi_6']
@@ -149,7 +149,7 @@ def normalize(dic):
 		indicator.to_csv(nome, mode='w', header=True)
 
 
-    
+
 normalize(indicators)
 
 

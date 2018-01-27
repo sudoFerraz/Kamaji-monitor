@@ -428,3 +428,33 @@
 01/26/2018 10:56:15 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
 01/26/2018 10:56:15 PM - INFO - 	[+] Creating Random Forest regressor.
 01/26/2018 10:56:15 PM - INFO - 	[+] Training Random Forest regressor.
+01/26/2018 11:38:39 PM - INFO - [+] Loading 'all indicators.csv' datafile.
+01/26/2018 11:38:39 PM - INFO - [+] Filling NaN.
+01/26/2018 11:38:40 PM - INFO - [+] Creating label from 'open' and 'close'.
+01/26/2018 11:38:40 PM - INFO - [+] Creating value from 'open' and 'close'.
+01/26/2018 11:38:40 PM - INFO - [+] Sending data to SVM classifier.
+01/26/2018 11:38:40 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+01/26/2018 11:38:40 PM - INFO - 	[+] Training SVM classifier.
+01/26/2018 11:38:41 PM - INFO - 	[+] Predicting with SVM classifier.
+01/26/2018 11:38:41 PM - INFO - 	[+] Creating SVM confusion matrix.
+01/26/2018 11:38:41 PM - INFO - [+] Sending data to SVM regressor.
+01/26/2018 11:38:41 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+01/26/2018 11:38:41 PM - INFO - 	[+] Training SVM regressor.
+01/26/2018 11:38:41 PM - INFO - 	[+] Predicting with SVM regressor.
+01/26/2018 11:38:41 PM - INFO - 	[+] Creating SVM regressor mean absolute error.
+01/26/2018 11:38:41 PM - INFO - [+] Sending data to Neural Network classifier.
+01/26/2018 11:38:41 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+01/26/2018 11:38:41 PM - INFO - 	[+] Creating Neural Network topology
+01/26/2018 11:38:41 PM - INFO - 	[+] Compiling Neural Network with 3 hidden layers.
+01/26/2018 11:38:41 PM - INFO - 	[+] Training Neural Network.
+01/26/2018 11:38:50 PM - INFO - 	[+] Predicting with Neural Network.
+01/26/2018 11:38:50 PM - INFO - 	[+] Creating Neural Network confusion matrix.
+01/26/2018 11:38:50 PM - INFO - [+] Sending data to Random Forest classifier.
+01/26/2018 11:38:50 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+01/26/2018 11:38:50 PM - INFO - 	[+] Training Random Forest classifier.
+01/26/2018 11:38:51 PM - INFO - 	[+] Predicting with Random Forest.
+01/26/2018 11:38:51 PM - INFO - 	[+] Creating Random Forest confusion matrix.
+01/26/2018 11:38:51 PM - INFO - [+] Sending data to Random Forest regressor.
+01/26/2018 11:38:51 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+01/26/2018 11:38:51 PM - INFO - 	[+] Creating Random Forest regressor.
+01/26/2018 11:38:51 PM - INFO - 	[+] Training Random Forest regressor.

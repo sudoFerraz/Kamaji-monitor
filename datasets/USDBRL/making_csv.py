@@ -97,14 +97,52 @@ indicators['matrix'] = matrix
 
 data.to_csv('all_indicators.csv', mode='w', header=True)
 close_price.to_csv('close_price.csv', mode='w', header=True)
+
+
 low_bollinger.to_csv('low_bollinger.csv', mode='w', header=True)
+low_bollinger = close_price - low_bollinger
+low_bollinger[low_bollinger < 0] = 1
+low_bollinger[low_bollinger >= 0] = 0
+low_bollinger.to_csv('signal_low_bollinger', mode='w', header=True)
+low_bollinger[low_bollinger == 0] = -1
+low_bollinger.to_csv('labaled_low_bollinger', mode='w', header=True)
+
 up_bollinger.to_csv('up_bollinger.csv', mode='w', header=True)
+up_bollinger = up_bollinger - close_price
+up_bollinger[up_bollinger < 0] = 1
+up_bollinger[up_bollinger >= 0] = 0
+up_bollinger.to_csv('signal_up_bollinger', mode='w', header=True)
+up_bollinger[up_bollinger == 0] = -1
+up_bollinger.to_csv('up_bollinger', mode='w', header=True)
+
 rsi6.to_csv('rsi6.csv', mode='w', header=True)
 rsi12.to_csv('rsi12.csv', mode='w', header=True)
+rsi = rsi6 - rsi12
+rsi[rsi > 0] = 1
+rsi[rsi <= 0] = 0
+rsi.to_csv('signal_rsi.csv', mode='w', header=True)
+rsi[rsi == 0] = -1
+rsi.to_csv('labeled_rsi.csv', mode='w', header=True)
+
 macd_signal_line.to_csv('macd_signal_line.csv', mode='w', header=True)
 macd.to_csv('macd.csv', mode='w', header=True)
 macd_histogram.to_csv('macd_histogram.csv', mode='w', header=True)
+macd_histogram[macd_histogram > 0] = 1
+macd_histogram[macd_histogram <= 0] = 0
+macd_histogram.to_csv('signal_macd.csv', mode='w', header=True)
+macd_histogram[macd_histogram == 0] = -1
+macd_histogram.to_csv('labeled_macd')
+
+
+
 change_1day.to_csv('change_1day.csv', mode='w', header=True)
+change_1day[change_1day > 0] = 1
+change_1day[change_1day <= 0] = 0
+change_1day.to_csv('signal_change')
+change_1day[change_1day <=0] = -1
+change_1day.to_csv('labaled_change.csv', mode='w', header=True)
+
+
 close_20_sma.to_csv('close_20_sma.csv', mode='w', header=True)
 close_20_mstd.to_csv('close_20_mstd.csv', mode='w', header=True)
 boll.to_csv('boll.csv', mode='w', header=True)
@@ -138,7 +176,10 @@ mdm14.to_csv('mdm14.csv', mode='w', header=True)
 trix.to_csv('trix.csv', mode='w', header=True)
 matrix.to_csv('matrix.csv', mode='w', header=True)
 
+
+
 def normalize(dic):
+	all_normalized = []
 	for name, indicator in dic.iteritems():
 		std = indicator.std()
 		mean = indicator.mean()
@@ -147,7 +188,9 @@ def normalize(dic):
 			indicator.iloc[i] = (indicator.iloc[i] - mean)/std
 		nome = "normalized_" + name + ".csv"
 		indicator.to_csv(nome, mode='w', header=True)
-
+		all_normalized.append(indicator)
+	all_normalized = pd.concat(all_normalized, axis=1)
+	all_normalized.to_csv('all_normalized.csv', mode='w', header=True)
 
     
 normalize(indicators)
