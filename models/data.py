@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import math
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
@@ -21,18 +22,8 @@ logging.basicConfig(
 )
 
 
-def create_direction(df):
-    x = np.zeros(len(df), dtype=np.float64)
-    
-    if len(df['open']) == len(df['close']):
-        for _ in tqdm(range(len(df['open']))):
-            x[_] = df['open'][_] - df['close'][_]
-            x[_] = 0 if x[_] < 0.0 else 1
-    else:
-        logging.error('[-] \'open\' and \'close\' columns with different sizes.')
-        print('[-] \'open\' and \'close\' columns with different sizes!')
-    
-    return pd.DataFrame(data=x, index=range(len(x)), columns=['Label'])
+def target_numerical_to_binary(y):
+    return y['Values'].apply(lambda x: 1 if x > 0.0 else 0)
 
 
 def create_numerical_direction(df):
@@ -40,14 +31,16 @@ def create_numerical_direction(df):
     
     if len(df['open']) == len(df['close']):
         for _ in tqdm(range(len(df['open']))):
-            a = df['open'][_] - df['high'][_]
-            b = df['low'][_] - df['close'][_]
-            x[_] = (df['close_20_sma'][_] * (a - b)) * 10
+            k = (df['high'][_] - df['open'][_]) - (df['close'][_] - df['low'][_])
+            v = math.sqrt((df['close'][_] - df['boll_lb'][_])*(df['close'][_] - df['boll_lb'][_]))
+            u = math.sqrt((df['open'][_] - df['boll_ub'][_])*(df['open'][_] - df['boll_ub'][_]))
+            r = (df['rsi_6'][_] + df['rsi_12'][_]) / 200
+            x[_] = (r*(df['middle'][_]*k) + (v-u)*df['macd'][_]) / (r+df['macd'][_])
     else:
         logging.error('[-] \'open\' and \'close\' columns with differents sizes.')
-        print('[-] \'open\' and \'close\' columns with differents sizes!')
+        print('[-] \'open\' and \'close\' columns with differe#/dashboardnts sizes!')
     
-    return pd.DataFrame(data=x, index=range(len(x)), columns=['Reg_Value'])
+    return pd.DataFrame(data=x, index=range(len(x)), columns=['Values'])
 
 
 def fill_values(df):
@@ -76,19 +69,16 @@ if __name__ == '__main__':
     print('[+] Filling NaN.')
     all_indicators = fill_values(all_indicators)
     
-    logging.info('[+] Creating label from \'open\' and \'close\'.')
-    print('\n[+] Creating label from \'open\' and \'close\'.')
-    y_classify = create_direction(all_indicators)
-    
     logging.info('[+] Creating value from \'open\' and \'close\'.')
     print('\n[+] Creating value from \'open\' and \'close\'.')
     y_regress = create_numerical_direction(all_indicators)
+    y = target_numerical_to_binary(y_regress)
     
     x = all_indicators.iloc[:, range(1, 70)].values
-    
+
     logging.info('[+] Sending data to SVM classifier.')
     print('\n\n[+] Sending data to SVM classifier.')
-    svc_cm = svc.svm_classify(x, y_classify)
+    svc_cm = svc.svm_classify(x, y)
     print('\t[+] SVC: ' + str((svc_cm[0, 0] + svc_cm[1, 1])/(sum(svc_cm[0]) + sum(svc_cm[1]))))
     
     logging.info('[+] Sending data to SVM regressor.')
@@ -98,12 +88,12 @@ if __name__ == '__main__':
     
     logging.info('[+] Sending data to Neural Network classifier.')
     print('\n\n[+] Sending data to Neural Network classifier.')
-    nn_cm = nn_model.neural_network_classify(x, y_classify)
+    nn_cm = nn_model.neural_network_classify(x, y)
     print('\t[+] Neural network: ' + str((nn_cm[0, 0] + nn_cm[1, 1])/(sum(nn_cm[0]) + sum(nn_cm[1]))))
     
     logging.info('[+] Sending data to Random Forest classifier.')
     print('\n\n[+] Sending data to Random Forest classifier.')
-    crf_cm = crf.random_forest_classify(x, y_classify)
+    crf_cm = crf.random_forest_classify(x, y)
     print('\t[+] Random forest classify: ' + str((crf_cm[0, 0] + crf_cm[1, 1])/(sum(crf_cm[0]) + sum(crf_cm[1]))))
 
     logging.info('[+] Sending data to Random Forest regressor.')
