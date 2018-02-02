@@ -2,8 +2,10 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 import math
-
+import random
 from sklearn.svm import SVC
+
+import algorithm as ga
 
 
 def target_numerical_to_binary(y):
@@ -36,7 +38,9 @@ def fill_values(df):
 
 
 def get_dataframe():
-    df = pd.read_csv('../../datasets/USDBRL/all_inticators.csv')
+    pd.set_option('use_inf_as_na', True)
+    df = pd.read_csv('../datasets/USDBRL/all_inticators.csv')
+    df = df.drop(labels='Date', axis=1)
     df = fill_values(df)
     y_regress = create_numerical_direction(df)
     y = target_numerical_to_binary(y_regress)
@@ -53,7 +57,7 @@ def create_dataframe(features):
             df = df.drop(labels=names[i], axis=1)
 
     nb_classes = len(df.columns.get_values())
-    x = df.iloc[:, range(nb_classes)].values
+    x = df.iloc[:, range(nb_classes)].values.astype(np.float)
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
     return df, x_train, x_test, y_train, y_test, nb_classes
@@ -65,3 +69,30 @@ def train_and_score(features):
     classifier.fit(x_train, y_train.values.ravel())
     return classifier.score(x_test, y_test)
 
+
+def train_models(models):
+    i = 1
+    for model in models:
+        if '1' not in model.features:
+            index = random.randint(0, len(model.features) - 1)
+            h = model.features[:index]
+            t = model.features[index + 1:]
+            model.features = h + str(1 - int(model.features[index])) + t
+        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
+        model.train()
+        i += 1
+
+
+def generate(features, nb_generations=10, nb_population=20):
+    optimizer = ga.GA(features)
+    population = optimizer.create_population(nb_population)
+
+    for _ in range(nb_generations):
+        print('Geracao ' + str(_+1))
+        train_models(population)
+
+        if _ != nb_population - 1:
+            population = optimizer.evolve(population)
+
+    population = sorted(population, key=lambda m: m.accuracy, reverse=True)
+    return population
