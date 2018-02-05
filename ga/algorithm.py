@@ -1,11 +1,12 @@
 import random
-import gasvm
 from _operator import add
 from functools import reduce
 
+import gasvm
+
 
 class GA:
-    def __init__(self, features, retain=0.4, random_select=0.1, mutation=0.2):
+    def __init__(self, features, retain=0.25, random_select=0.1, mutation=0.2):
         self.features = features
         self.retain = retain
         self.random_select = random_select
@@ -14,7 +15,7 @@ class GA:
     def create_population(self, count):
         pop = []
         for _ in range(count):
-            model = gasvm.SVM(self.features)
+            model = gasvm.SVM(self.features[_])
             pop.append(model)
 
         return pop

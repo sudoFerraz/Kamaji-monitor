@@ -1,29 +1,19 @@
-from sklearn.model_selection import train_test_split
-import pandas as pd
-import numpy as np
-import math
 import random
-from sklearn.svm import SVC
 
 import algorithm as ga
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
 
 def target_numerical_to_binary(y):
-    return y['Values'].apply(lambda x: 1 if x > 0.0 else 0)
+    y = y.shift(-1)
+    return y.apply(lambda x: 1 if x > 0.0 else 0)
 
 
 def create_numerical_direction(df):
-    x = np.zeros(len(df), dtype=np.float64)
-
-    if len(df['open']) == len(df['close']):
-        for _ in range(len(df['open'])):
-            k = (df['high'][_] - df['open'][_]) - (df['close'][_] - df['low'][_])
-            v = math.sqrt((df['close'][_] - df['boll_lb'][_]) * (df['close'][_] - df['boll_lb'][_]))
-            u = math.sqrt((df['open'][_] - df['boll_ub'][_]) * (df['open'][_] - df['boll_ub'][_]))
-            r = (df['rsi_6'][_] + df['rsi_12'][_]) / 200
-            x[_] = (r * (df['middle'][_] * k) + (v - u) * df['macd'][_]) / (r + df['macd'][_])
-
-    return pd.DataFrame(data=x, index=range(len(x)), columns=['Values'])
+    return df['close'] - df['close'].shift(1)
 
 
 def fill_values(df):
@@ -37,10 +27,8 @@ def fill_values(df):
     return df
 
 
-def get_dataframe():
+def set_dataframe(df):
     pd.set_option('use_inf_as_na', True)
-    df = pd.read_csv('../datasets/USDBRL/all_inticators.csv')
-    df = df.drop(labels='Date', axis=1)
     df = fill_values(df)
     y_regress = create_numerical_direction(df)
     y = target_numerical_to_binary(y_regress)
@@ -48,8 +36,8 @@ def get_dataframe():
     return df, y
 
 
-def create_dataframe(features):
-    df, y = get_dataframe()
+def create_dataframe(df, features):
+    df, y = set_dataframe(df)
     names = df.columns.get_values()
 
     for i in range(len(features)):
@@ -63,14 +51,14 @@ def create_dataframe(features):
     return df, x_train, x_test, y_train, y_test, nb_classes
 
 
-def train_and_score(features):
-    df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(features)
+def train_and_score(features, df):
+    df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features)
     classifier = SVC(kernel='rbf', random_state=42)
     classifier.fit(x_train, y_train.values.ravel())
     return classifier.score(x_test, y_test)
 
 
-def train_models(models):
+def train_models(models, df):
     i = 1
     for model in models:
         if '1' not in model.features:
@@ -79,19 +67,31 @@ def train_models(models):
             t = model.features[index + 1:]
             model.features = h + str(1 - int(model.features[index])) + t
         print('\tIndividuo ' + str(i) + ' com features ' + model.features)
-        model.train()
+        model.train(df)
         i += 1
 
 
-def generate(features, nb_generations=10, nb_population=20):
+def initial_features(nb_population, feature_size):
+    all_features = []
+    for _ in range(nb_population):
+        features = ''
+        for i in range(feature_size):
+            features += str(random.randint(0, 1))
+        all_features.append(features)
+    return all_features
+
+
+def generate(df, nb_generations=10, nb_population=20):
+    df = df.drop(labels='Date', axis=1)
+    features = initial_features(nb_population, len(df.columns.get_values()))
     optimizer = ga.GA(features)
     population = optimizer.create_population(nb_population)
 
     for _ in range(nb_generations):
         print('Geracao ' + str(_+1))
-        train_models(population)
+        train_models(population, df)
 
-        if _ != nb_population - 1:
+        if _ != nb_generations - 1:
             population = optimizer.evolve(population)
 
     population = sorted(population, key=lambda m: m.accuracy, reverse=True)

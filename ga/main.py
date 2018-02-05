@@ -1,9 +1,10 @@
 import methods
-import random
+import pandas as pd
 
 
 def print_acc(pop):
     f = open('acc_x_fratures.txt', 'a')
+    f.write('\n\nNova execucao:\n')
     for p in pop:
         print(str(p.accuracy) + ' com features ' + p.features)
         f.write(str(p.accuracy) + '\t\t' + p.features + '\n')
@@ -11,9 +12,6 @@ def print_acc(pop):
 
 
 if __name__ == '__main__':
-    initial_features = ''
-    for i in range(69):
-        initial_features += str(random.randint(0, 1))
-
-    population = methods.generate(initial_features, 20, 40)
-    print_acc(population[:5])
+    df = pd.read_csv('../datasets/USDBRL/all_normalized.csv')
+    population = methods.generate(df, 50, 100)
+    print_acc(population[:10])

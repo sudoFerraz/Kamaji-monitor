@@ -1,0 +1,29 @@
+02/02/2018 06:00:41 PM - INFO - [+] Loading 'all indicators.csv' datafile.
+02/02/2018 06:00:41 PM - INFO - [+] Filling NaN.
+02/02/2018 06:00:42 PM - INFO - [+] Creating value from 'open' and 'close'.
+02/02/2018 06:00:43 PM - INFO - [+] Sending data to SVM classifier.
+02/02/2018 06:00:43 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+02/02/2018 06:00:43 PM - INFO - 	[+] Training SVM classifier.
+02/02/2018 06:00:44 PM - INFO - 	[+] Predicting with SVM classifier.
+02/02/2018 06:00:44 PM - INFO - 	[+] Creating SVM confusion matrix.
+02/02/2018 06:00:44 PM - INFO - [+] Sending data to SVM regressor.
+02/02/2018 06:00:44 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+02/02/2018 06:00:44 PM - INFO - 	[+] Training SVM regressor.
+02/02/2018 06:00:44 PM - INFO - 	[+] Predicting with SVM regressor.
+02/02/2018 06:00:44 PM - INFO - 	[+] Creating SVM regressor mean absolute error.
+02/02/2018 06:00:44 PM - INFO - [+] Sending data to Neural Network classifier.
+02/02/2018 06:00:44 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+02/02/2018 06:00:44 PM - INFO - 	[+] Creating Neural Network topology
+02/02/2018 06:00:45 PM - INFO - 	[+] Compiling Neural Network with 3 hidden layers.
+02/02/2018 06:00:45 PM - INFO - 	[+] Training Neural Network.
+02/02/2018 06:00:58 PM - INFO - 	[+] Predicting with Neural Network.
+02/02/2018 06:00:58 PM - INFO - 	[+] Creating Neural Network confusion matrix.
+02/02/2018 06:00:58 PM - INFO - [+] Sending data to Random Forest classifier.
+02/02/2018 06:00:58 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+02/02/2018 06:00:58 PM - INFO - 	[+] Training Random Forest classifier.
+02/02/2018 06:01:01 PM - INFO - 	[+] Predicting with Random Forest.
+02/02/2018 06:01:01 PM - INFO - 	[+] Creating Random Forest confusion matrix.
+02/02/2018 06:01:01 PM - INFO - [+] Sending data to Random Forest regressor.
+02/02/2018 06:01:01 PM - INFO - 	[+] Splitting 80% to train and 20% to test.
+02/02/2018 06:01:01 PM - INFO - 	[+] Creating Random Forest regressor.
+02/02/2018 06:01:01 PM - INFO - 	[+] Training Random Forest regressor.

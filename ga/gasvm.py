@@ -9,6 +9,6 @@ class SVM:
     def define_features(self, features):
         self.features = features
 
-    def train(self):
+    def train(self, df):
         if not self.accuracy:
-            self.accuracy = methods.train_and_score(self.features)
+            self.accuracy = methods.train_and_score(self.features, df)
