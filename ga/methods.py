@@ -81,8 +81,27 @@ def initial_features(nb_population, feature_size):
     return all_features
 
 
+def verify_columns(df):
+    all_names = df.columns.get_values()
+    names = []
+    k = 0
+    x = df.isnull().any()
+
+    for i in x:
+        if i:
+            names.append(all_names[k])
+        k += 1
+
+    for name in names:
+        if df[name].isnull().T.sum() == len(df[name]):
+            df = df.drop(labels=[name], axis=1)
+
+    return df
+
+
 def generate(df, nb_generations=10, nb_population=20):
     df = df.drop(labels='Date', axis=1)
+    df = verify_columns(df)
     features = initial_features(nb_population, len(df.columns.get_values()))
     optimizer = ga.GA(features)
     population = optimizer.create_population(nb_population)

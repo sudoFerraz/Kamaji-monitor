@@ -12,6 +12,10 @@ def print_acc(pop):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('../datasets/USDBRL/all_normalized.csv')
+    pd.set_option('use_inf_as_na', True)
+    df = pd.read_csv('../datasets/data.csv')
+    df['Date'] = df['date']
+    df = df.drop('date', axis=1)
+    #df = pd.read_csv('../datasets/USDBRL/all_normalized.csv')
     population = methods.generate(df, 50, 100)
     print_acc(population[:10])
