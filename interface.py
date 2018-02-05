@@ -108,70 +108,70 @@ while True:
     rsi6_signal = signal_handler.get_signal_by_indicator(session, rsi6_indicator.id)
     macd_signal = signal_handler.get_signal_by_indicator(session, macd_indicator.id)
 
-    print "[+][+] Status do mercado no momento [+][+]"
-    print "\n"
-    t = PrettyTable()
-    t.add_column("Close", [close_price_indicator.value])
-    t.add_column("Change 2 dias", [change_2days_ago_indicator.value])
-    print t
-    print "\n"
-    print "[+] Indicadores Ativos [+]"
-    print "\n"
-    print '[+] Ultimo Teto Bollinger Band ' + str(bollinger_up_indicator.value)
-    print '[+] Ultimo Chao Bollinger Band ' + str(bollinger_low_indicator.value)
-    print "[+] Ultimo EMA Bollinger Band " + str(bollinger_indicator.value)
-    print '[+] Ultimo RSI 6 dias ' + str(rsi6_indicator.value)
-    print '[+] Ultimo RSI 12 dias ' +  str(rsi12_indicator.value)
-    print '[+] Ultimo Macd ' + str(macd_indicator.value)
-    print '[+] Ultimo Macd Signal line ' + str(macd_signal_line_indicator.value)
-    print '[+] Ultimo Macd Histogram ' + str(macd_histogram_indicator.value)
-    print "[+] Ultimo SMA 20 dias ", str(close_20_sma[-1])
-    print "[+] Ultimo MSTD 20 dias ", str(close_20_mstd[-1])
-    print "[+] Ultimo EMA 12 dias ", str(close_12_ema[-1])
-    print "[+] Ultimo EMA 26 dias ", str(close_26_ema[-1])
-    print "\n"
-    print "\n"
-    print "********************************************************************"
-    print "\n"
-    print "\n"
-    print "[+] Sinais Ativos [+]"
-    print "\n"
-    table = PrettyTable(["Signal name", "Active", "Relevancia", "Fora do padrao"])
-    table.align["Signal name"] = "1"
-    table.padding_width = 1
-    if bollinger_up_signal:
-        table.add_row(["Bollinger Band UB", "True", bollinger_up_signal.accuracy, bollinger_up_standardized.value])
-    else:
-        table.add_row(["Bollinger Band UB", "False", "0", "-"])
-    if bollinger_low_signal:
-        table.add_row(["Bollinger Band LB", "True", bollinger_low_signal.accuracy, bollinger_low_standardized.value])
-    else:
-        table.add_row(["Bollinger Band LB", "False", "0", "-"])
-    if macd_histogram_signal:
-        table.add_row(["MACD Histogram", "True", macd_histogram_signal.accuracy, macd_histogram_standardized.value])
-    else:
-        table.add_row(["MACD Histogram", "False", "0", "-"])
-    if macd_signal:
-        table.add_row(["MACD Cross", "True", macd_signal.accuracy, macd_standardized.value])
-    else:
-        table.add_row(["MACD Cross", "False", "0", "-"])
-    if rsi6_signal:
-        table.add_row(["Relative Strength Index", "True", rsi6_signal.accuracy, rsi6_standardized.value])
-    else:
-        table.add_row(["Relative Strength Index", "False", "0", "-"])
-
-    if bollinger_low_signal and macd_histogram_signal and macd_signal and rsi6_signal:
-        buy = Figlet(font='contessa')
-        print buy.renderText('TENDENCIA DE SUBIDA CONSERVADORA')
-    elif bollinger_up_signal:
-        buy = Figlet(font='contessa')
-        print buy.renderText('TENDENCIA DE CORRECAO PARA BAIXO')
-    elif macd_histogram_signal and macd_signal and rsi6_signal:
-        buy = Figlet(font='contessa')
-        print buy.renderText('TENDENCIA DE SUBIDA ARRISCADA')
-    else:
-        hold = Figlet(font='mini')
-        print hold.renderText('TENDENCIA DE RISCO RELATIVO ALTO')
-    print "\n"
-    print table
+   # print "[+][+] Status do mercado no momento [+][+]"
+   # print "\n"
+   # t = PrettyTable()
+   # t.add_column("Close", [close_price_indicator.value])
+   # t.add_column("Change 2 dias", [change_2days_ago_indicator.value])
+   # print t
+   # print "\n"
+   # print "[+] Indicadores Ativos [+]"
+   # print "\n"
+   # print '[+] Ultimo Teto Bollinger Band ' + str(bollinger_up_indicator.value)
+   # print '[+] Ultimo Chao Bollinger Band ' + str(bollinger_low_indicator.value)
+   # print "[+] Ultimo EMA Bollinger Band " + str(bollinger_indicator.value)
+   # print '[+] Ultimo RSI 6 dias ' + str(rsi6_indicator.value)
+   # print '[+] Ultimo RSI 12 dias ' +  str(rsi12_indicator.value)
+   # print '[+] Ultimo Macd ' + str(macd_indicator.value)
+   # print '[+] Ultimo Macd Signal line ' + str(macd_signal_line_indicator.value)
+   # print '[+] Ultimo Macd Histogram ' + str(macd_histogram_indicator.value)
+   # print "[+] Ultimo SMA 20 dias ", str(close_20_sma[-1])
+   # print "[+] Ultimo MSTD 20 dias ", str(close_20_mstd[-1])
+   # print "[+] Ultimo EMA 12 dias ", str(close_12_ema[-1])
+   # print "[+] Ultimo EMA 26 dias ", str(close_26_ema[-1])
+   # print "\n"
+   # print "\n"
+   # print "********************************************************************"
+   # print "\n"
+   # print "\n"
+   # print "[+] Sinais Ativos [+]"
+   # print "\n"
+   # table = PrettyTable(["Signal name", "Active", "Relevancia", "Fora do padrao"])
+   # table.align["Signal name"] = "1"
+   # table.padding_width = 1
+   # if bollinger_up_signal:
+   #     table.add_row(["Bollinger Band UB", "True", bollinger_up_signal.accuracy, bollinger_up_standardized.value])
+   # else:
+   #     table.add_row(["Bollinger Band UB", "False", "0", "-"])
+   # if bollinger_low_signal:
+   #     table.add_row(["Bollinger Band LB", "True", bollinger_low_signal.accuracy, bollinger_low_standardized.value])
+   # else:
+   #     table.add_row(["Bollinger Band LB", "False", "0", "-"])
+   # if macd_histogram_signal:
+   #     table.add_row(["MACD Histogram", "True", macd_histogram_signal.accuracy, macd_histogram_standardized.value])
+   # else:
+   #     table.add_row(["MACD Histogram", "False", "0", "-"])
+   # if macd_signal:
+   #     table.add_row(["MACD Cross", "True", macd_signal.accuracy, macd_standardized.value])
+   # else:
+   #     table.add_row(["MACD Cross", "False", "0", "-"])
+   # if rsi6_signal:
+   #     table.add_row(["Relative Strength Index", "True", rsi6_signal.accuracy, rsi6_standardized.value])
+   # else:
+   #     table.add_row(["Relative Strength Index", "False", "0", "-"])
+#
+#    if bollinger_low_signal and macd_histogram_signal and macd_signal and rsi6_signal:
+#        buy = Figlet(font='contessa')
+#        print buy.renderText('TENDENCIA DE SUBIDA CONSERVADORA')
+#    elif bollinger_up_signal:
+#        buy = Figlet(font='contessa')
+#        print buy.renderText('TENDENCIA DE CORRECAO PARA BAIXO')
+#    elif macd_histogram_signal and macd_signal and rsi6_signal:
+#        buy = Figlet(font='contessa')
+#        print buy.renderText('TENDENCIA DE SUBIDA ARRISCADA')
+#    else:
+#        hold = Figlet(font='mini')
+#        print hold.renderText('TENDENCIA DE RISCO RELATIVO ALTO')
+#    print "\n"
+#    print table
     sleep(60)
