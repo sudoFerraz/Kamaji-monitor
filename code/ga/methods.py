@@ -136,15 +136,19 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0
     optimizer = ga.GA(features)
     population = optimizer.create_population(nb_population, model)
     generations_accuracies = {}
+    acc = 0.0
+    _ = 0
 
-    for _ in range(nb_generations):
-        print('Geracao ' + str(_ + 1))
+    while acc < accuracy or _ < nb_generations:
+        print('\n\nNova geracao')
+        _ += 1
         train_models(population, df, y)
 
-        generations_accuracies = generation_score(generations_accuracies, population, _+1)
+        generations_accuracies = generation_score(generations_accuracies, population, _)
         if _ != nb_generations - 1:
             population = optimizer.evolve(population)
 
-    population = sorted(population, key=lambda m: m.accuracy, reverse=True)
+        population = sorted(population, key=lambda m: m.accuracy, reverse=True)
+        acc = np.mean(generations_accuracies[_])
 
     return population, generations_accuracies

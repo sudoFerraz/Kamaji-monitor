@@ -44,9 +44,9 @@ if __name__ == '__main__':
         model -> qual modelo usar, podend ser ['svm', 'crf', 'svr', 'rrf'] que são svm classificacao, 
         random forrest classificacao, svm de regressao e random forrest regressao. Vou ir mexendo pra adicionar rede neural
         
-        O ultimo parametro é a accuracia para ficar no loop, também vou implementar jaja, ai subo.
+        O ultimo parametro é a accuracia para ficar no loop, cuidado pra nao colocar um valor que nao da pra alcançar.
     '''
-    population, accuracies = ga.initialize(df, y_regress, model='rrf')
+    population, accuracies = ga.initialize(df, y)
 
     '''
         Para acessar a média da acurácia na geracao 3:
