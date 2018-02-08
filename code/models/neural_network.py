@@ -26,7 +26,7 @@ def neural_network_classify(x, y):
     optimizer = RMSprop(lr=0.00075)
     classifier.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
     
-    classifier.fit(x_train, y_train.values.ravel(), batch_size=16, epochs=30, verbose=0)
+    classifier.fit(x_train, y_train, batch_size=16, epochs=30, verbose=0)
     
     y_pred = classifier.predict(x_test, batch_size=16)
     y_pred = (y_pred > 0.5)
