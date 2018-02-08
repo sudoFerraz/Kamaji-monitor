@@ -46,7 +46,7 @@ if __name__ == '__main__':
         
         O ultimo parametro é a accuracia para ficar no loop, também vou implementar jaja, ai subo.
     '''
-    population, accuracies = ga.initialize(df, y_regress)
+    population, accuracies = ga.initialize(df, y_regress, model='rrf')
 
     '''
         Para acessar a média da acurácia na geracao 3:

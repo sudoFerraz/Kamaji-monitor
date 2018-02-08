@@ -58,7 +58,6 @@ def create_dataframe(df, features, y):
 
 
 def train_and_score(features, df, y, model_name):
-    print('nome: ' + model_name)
     df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features, y)
     if model_name == 'crf':
         model = RandomForestClassifier(n_estimators=3 * (len(features)), criterion='entropy', random_state=42)
@@ -138,7 +137,14 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0
     population = optimizer.create_population(nb_population, model)
     generations_accuracies = {}
 
-    for model in population:
-        print(model.model_name)
+    for _ in range(nb_generations):
+        print('Geracao ' + str(_ + 1))
+        train_models(population, df, y)
+
+        generations_accuracies = generation_score(generations_accuracies, population, _+1)
+        if _ != nb_generations - 1:
+            population = optimizer.evolve(population)
+
+    population = sorted(population, key=lambda m: m.accuracy, reverse=True)
 
     return population, generations_accuracies

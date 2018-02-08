@@ -12,10 +12,10 @@ class GA:
         self.random_select = random_select
         self.mutation = mutation
 
-    def create_population(self, count, model):
+    def create_population(self, count, model_name):
         pop = []
         for _ in range(count):
-            model = mdl.Model(self.features[_], model)
+            model = mdl.Model(self.features[_], model_name)
             pop.append(model)
 
         return pop
