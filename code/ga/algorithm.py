@@ -2,7 +2,7 @@ import random
 from _operator import add
 from functools import reduce
 
-import gasvm
+import model as mdl
 
 
 class GA:
@@ -12,10 +12,10 @@ class GA:
         self.random_select = random_select
         self.mutation = mutation
 
-    def create_population(self, count):
+    def create_population(self, count, model):
         pop = []
         for _ in range(count):
-            model = gasvm.SVM(self.features[_])
+            model = mdl.Model(self.features[_], model)
             pop.append(model)
 
         return pop
@@ -41,7 +41,7 @@ class GA:
             if self.mutation > random.random():
                 features = self.mutate(features)
 
-            model = gasvm.SVM(features)
+            model = mdl.Model(features, individual_a.model_name)
             model.define_features(features)
 
             children.append(model)
