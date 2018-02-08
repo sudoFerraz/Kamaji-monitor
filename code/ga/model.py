@@ -11,9 +11,6 @@ class Model:
     def define_features(self, features):
         self.features = features
 
-    def define_model(self, model):
-        self.model = model
-
     def train(self, df, y):
         if not self.accuracy:
             self.accuracy, self.model = methods.train_and_score(self.features, df, y, self.model_name)
