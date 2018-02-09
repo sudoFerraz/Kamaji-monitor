@@ -41,12 +41,12 @@ if __name__ == '__main__':
         Então passar o datafram e o target sao parametros obrigatorios.
         nb_generation -> numeros de geracoes
         nb_population -> numero de individuos em cada populacao
-        model -> qual modelo usar, podend ser ['svm', 'crf', 'svr', 'rrf'] que são svm classificacao, 
-        random forrest classificacao, svm de regressao e random forrest regressao. Vou ir mexendo pra adicionar rede neural
+        model -> qual modelo usar, podend ser ['svm', 'crf', 'svr', 'rrf', 'nn'] que são svm classificacao, 
+        random forrest classificacao, svm de regressao e random forrest regressao e rede neural, nessa ordem.
         
         O ultimo parametro é a accuracia para ficar no loop, cuidado pra nao colocar um valor que nao da pra alcançar.
     '''
-    population, accuracies = ga.initialize(df, y)
+    population, accuracies = ga.initialize(df, y, model='nn')
 
     '''
         Para acessar a média da acurácia na geracao 3:

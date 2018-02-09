@@ -3,12 +3,14 @@ import random
 import algorithm as ga
 import numpy as np
 import pandas as pd
+from keras import Sequential
+from keras.layers import Dense
+from keras.optimizers import RMSprop
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import confusion_matrix, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC, SVR
-
 
 pd.set_option('use_inf_as_na', True)
 
@@ -65,8 +67,21 @@ def train_and_score(features, df, y, model_name):
         y_pred = model.predict(x_test)
         cm = confusion_matrix(y_test, y_pred)
         acc = (cm[0][0] + cm[1][1]) / len(y_pred)
-    #elif model_name == 'nn':
-        #pass
+    elif model_name == 'nn':
+        model = Sequential()
+        model.add(Dense(input_dim=len(x_train[0, :]), units=len(x_train[0, :]), activation='relu',
+                        kernel_initializer='uniform'))
+        model.add(Dense(units=2 * len(x_train[0, :]), activation='relu', kernel_initializer='uniform'))
+        model.add(Dense(units=2 * len(x_train[0, :]), activation='relu', kernel_initializer='uniform'))
+        model.add(Dense(units=len(x_train[0, :]), activation='relu', kernel_initializer='uniform'))
+        model.add(Dense(units=1, activation='sigmoid', kernel_initializer='uniform'))
+        optimizer = RMSprop(lr=0.00075)
+        model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+        model.fit(x_train, y_train, batch_size=16, epochs=30, verbose=0)
+        y_pred = model.predict(x_test, batch_size=16)
+        y_pred = (y_pred > 0.5)
+        cm = confusion_matrix(y_test, y_pred)
+        acc = (cm[0][0] + cm[1][1]) / len(y_pred)
     elif model_name == 'svr':
         model = SVR(kernel='rbf')
         sc_x = StandardScaler()
