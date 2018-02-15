@@ -41,12 +41,12 @@ if __name__ == '__main__':
         Então passar o datafram e o target sao parametros obrigatorios.
         nb_generation -> numeros de geracoes
         nb_population -> numero de individuos em cada populacao
-        model -> qual modelo usar, podend ser ['svm', 'crf', 'svr', 'rrf', 'nn'] que são svm classificacao, 
-        random forrest classificacao, svm de regressao e random forrest regressao e rede neural, nessa ordem.
+        model -> qual modelo usar, podend ser ['dtc', 'svm', 'crf', 'nn'] que são arvore de decisao,
+        svm classificacao, random forrest classificacao e rede neural, nessa ordem.
         
         O ultimo parametro é a accuracia para ficar no loop, cuidado pra nao colocar um valor que nao da pra alcançar.
     '''
-    population, accuracies = ga.initialize(df, y, model='nn')
+    population, accuracies = ga.initialize(df, y, model='dtc', accuracy=0.5)
 
     '''
         Para acessar a média da acurácia na geracao 3:
@@ -66,11 +66,17 @@ if __name__ == '__main__':
         Imprimindo a acuracia dos 5 primeiros
     '''
     for individual in first_five:
-        print(individual.accuracy)
+        print(individual.accuracy_test)
 
     '''
         Selecionando o melhor modelo, já treinado, e pronto para utilizar. Também pode utilizar para retirar as métricas
         que precisar.
     '''
     best_model = first_five[0].model
+    '''
+        acuracia no teste, fitness e features do melhor modelo
+    '''
+    print('\n\nAcuracia no teste, fitness e features do melhor modelo')
+    print(str(first_five[0].accuracy_test) + '\t' + str(first_five[0].fitness))
+    print(first_five[0].features)
     print(best_model)

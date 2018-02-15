@@ -1,5 +1,5 @@
 import random
-from _operator import add
+from _operator import add, itemgetter, attrgetter
 from functools import reduce
 
 import model as mdl
@@ -21,8 +21,10 @@ class GA:
         return pop
 
     @staticmethod
-    def fitness(model):
-        return model.accuracy
+    def fitness(model, a=2):
+        value = 0.2*model.accuracy_train + 0.8*model.accuracy_test - a*(1 - model.components/len(model.features))
+        model.define_fitness(value)
+        return value
 
     def grade(self, pop):
         all = reduce(add, (self.fitness(model) for model in pop))
@@ -57,7 +59,8 @@ class GA:
 
     def evolve(self, pop):
         graded = [(self.fitness(model), model) for model in pop]
-        graded = [x[1] for x in sorted(graded, key=lambda k: k[0], reverse=True)]
+        graded = [x[1] for x in sorted(graded, key=lambda x: x[1].accuracy_test, reverse=True)]
+        #graded = [x[1] for x in sorted(graded, key=itemgetter(0), reverse=True)]
         retain_length = int(len(graded) * self.retain)
 
         parents = graded[:retain_length]

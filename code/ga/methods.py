@@ -1,4 +1,5 @@
 import random
+from operator import attrgetter
 
 import algorithm as ga
 import numpy as np
@@ -6,11 +7,11 @@ import pandas as pd
 from keras import Sequential
 from keras.layers import Dense
 from keras.optimizers import RMSprop
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.metrics import confusion_matrix, mean_squared_error
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC, SVR
+from sklearn.svm import SVC
 
 pd.set_option('use_inf_as_na', True)
 
@@ -59,14 +60,28 @@ def create_dataframe(df, features, y):
     return df, x_train, x_test, y_train, y_test, nb_classes
 
 
+def count_components(features):
+    i = 0
+    for component in features:
+        if component == '1':
+            i += 1
+
+    return i
+
+
 def train_and_score(features, df, y, model_name):
     df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features, y)
-    if model_name == 'crf':
-        model = RandomForestClassifier(n_estimators=3 * (len(features)), criterion='entropy', random_state=42)
+
+    if model_name == 'dtc':
+        model = DecisionTreeClassifier(criterion='entropy', random_state=42)
+        model.fit(x_train, y_train)
+        acc_train = model.score(x_train, y_train)
+        acc_test = model.score(x_test, y_test)
+    elif model_name == 'crf':
+        model = RandomForestClassifier(criterion='entropy', random_state=42, oob_score=True)
         model.fit(x_test, y_test)
-        y_pred = model.predict(x_test)
-        cm = confusion_matrix(y_test, y_pred)
-        acc = (cm[0][0] + cm[1][1]) / len(y_pred)
+        acc_train = model.oob_score_
+        acc_test = model.score(x_test, y_test)
     elif model_name == 'nn':
         model = Sequential()
         model.add(Dense(input_dim=len(x_train[0, :]), units=len(x_train[0, :]), activation='relu',
@@ -78,38 +93,21 @@ def train_and_score(features, df, y, model_name):
         optimizer = RMSprop(lr=0.00075)
         model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
         model.fit(x_train, y_train, batch_size=16, epochs=30, verbose=0)
-        y_pred = model.predict(x_test, batch_size=16)
-        y_pred = (y_pred > 0.5)
-        cm = confusion_matrix(y_test, y_pred)
-        acc = (cm[0][0] + cm[1][1]) / len(y_pred)
-    elif model_name == 'svr':
-        model = SVR(kernel='rbf')
-        sc_x = StandardScaler()
-        x_train = sc_x.fit_transform(x_train)
-        x_test = sc_x.transform(x_test)
-        sc_y = StandardScaler()
-        y_train = sc_y.fit_transform(y_train)
-        y_test = sc_y.fit_transform(y_test)
-        model.fit(x_train, y_train.ravel())
-        y_pred = model.predict(x_test)
-        acc = mean_squared_error(y_test, y_pred)
-    elif model_name == 'rrf':
-        model = RandomForestRegressor(n_estimators=3 * (len(features)), criterion='mse', random_state=42)
-        sc_x = StandardScaler()
-        x_train = sc_x.fit_transform(x_train)
-        x_test = sc_x.transform(x_test)
-        sc_y = StandardScaler()
-        y_train = sc_y.fit_transform(y_train)
-        y_test = sc_y.fit_transform(y_test)
-        model.fit(x_train, y_train.ravel())
-        y_pred = model.predict(x_test)
-        acc = mean_squared_error(y_test, y_pred)
+        y_pred_test = model.predict(x_test, batch_size=16)
+        y_pred_test = (y_pred_test > 0.5)
+        cm = confusion_matrix(y_test, y_pred_test)
+        acc_test = (cm[0][0] + cm[1][1]) / len(y_pred_test)
+        y_pred_train = model.predict(x_train, batch_size=16)
+        y_pred_train = (y_pred_train > 0.5)
+        cm = confusion_matrix(y_train, y_pred_train)
+        acc_train = (cm[0][0] + cm[1][1]) / len(y_pred_train)
     else:
-        model = SVC(kernel='rbf', random_state=42)
+        model = SVC(kernel='rbf', random_state=42, degree=count_components(features) - 1)
         model.fit(x_train, y_train.values.ravel())
-        acc = model.score(x_test, y_test)
+        acc_train = model.score(x_train, y_train)
+        acc_test = model.score(x_test, y_test)
 
-    return acc, model
+    return acc_train, acc_test, model
 
 
 def train_models(models, df, y):
@@ -121,7 +119,7 @@ def train_models(models, df, y):
             t = model.features[index + 1:]
             model.features = h + str(1 - int(model.features[index])) + t
         # TODO remove print
-        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
+        print(str(i) + ': ' + model.features + '  ' + str(model.accuracy_test))
         model.train(df, y)
         i += 1
 
@@ -139,7 +137,7 @@ def initial_features(nb_population, feature_size):
 def generation_score(dict, population, generation):
     accuracies = []
     for individual in population:
-        accuracies.append(individual.accuracy)
+        accuracies.append(individual.accuracy_test)
 
     dict[generation] = accuracies
     return dict
@@ -163,7 +161,8 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0
         if _ != nb_generations - 1:
             population = optimizer.evolve(population)
 
-        population = sorted(population, key=lambda m: m.accuracy, reverse=True)
+        population = sorted(population, key=attrgetter('accuracy_test'), reverse=True)
         acc = np.mean(generations_accuracies[_])
 
+    population = sorted(population, key=attrgetter('accuracy_test'), reverse=True)
     return population, generations_accuracies
