@@ -105,7 +105,7 @@ def train_and_score(features, df, y, model_name):
         y_pred = model.predict(x_test)
         acc = mean_squared_error(y_test, y_pred)
     else:
-        model = SVC(kernel='rbf', random_state=42)
+        model = SVC(kernel='rbf', random_state=42, C=70)
         model.fit(x_train, y_train.values.ravel())
         acc = model.score(x_test, y_test)
 

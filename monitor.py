@@ -52,8 +52,11 @@ indicator_handler = auxiliary.indicator_handler()
 
 def monitor():
     start_date = dt.datetime(1995, 1, 1)
-    df = web.DataReader('BRL=X', 'yahoo')
-    df.to_csv('brlusd.csv', mode='w', header=True)
+    try:
+        df = web.DataReader('BRL=X', 'yahoo')
+        df.to_csv('brlusd.csv', mode='w', header=True)
+    except:
+        pass
     data = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
     close_price = data['close']
     up_bollinger = data['boll_ub']
@@ -194,7 +197,7 @@ def monitor():
         indicator_handler.update_indicator(session, bollinger_indicator.id, last_bollinger)
     except:
         bollinger_indicator = indicator_handler.create_indicator(session, 'bollinger', last_bollinger)
-    
+
 
     last_bollinger_up = up_bollinger[-1]
     indicadores_dataframe.append(last_bollinger_up)
@@ -305,8 +308,8 @@ def monitor():
         indicator_handler.create_indicator(session, 'bollinger_up_mean', boll_ub_mean)
         indicator_handler.create_indicator(session, 'bollinger_up_std', boll_ub_std)
         indicator_handler.create_indicator(session, 'bollinger_up_standardized', boll_ub_standardized)
-        
-    
+
+
 
     boll_lb_array = data['boll_lb']
     boll_lb_std = boll_lb_array.std()
@@ -364,7 +367,7 @@ def monitor():
         indicator_handler.create_indicator(session, 'macd_histogram_mean', new_macd_histogram_mean)
         indicator_handler.create_indicator(session, 'macd_histogram_std', new_macd_histogram_std)
         indicator_handler.create_indicator(session, 'macd_histogram_standardized', new_macd_histogram_standardized)
-    
+
     new_macd_signal_line_array = data['macds']
     new_macd_signal_line_std = new_macd_signal_line_array.std()
     new_macd_signal_line_mean = new_macd_signal_line_array.mean()
@@ -380,7 +383,7 @@ def monitor():
         indicator_handler.create_indicator(session, 'macd_signal_line_standardized', new_macd_signal_line_standardized)
 
 
-    
+
 
 
 
