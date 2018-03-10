@@ -59,6 +59,16 @@ def create_dataframe(df, features, y):
     return df, x_train, x_test, y_train, y_test, nb_classes
 
 
+def predict_values(df, features):
+    names = df.columns.get_values()
+
+    for i in range(len(features)):
+        if not int(features[i]):
+            df = df.drop(labels=names[i], axis=1)
+
+    return df.tail(1)
+
+
 def train_and_score(features, df, y, model_name):
     df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features, y)
     if model_name == 'crf':
@@ -143,6 +153,55 @@ def generation_score(dict, population, generation):
 
     dict[generation] = accuracies
     return dict
+
+
+def begin(data_csv, df, nb_generations=10, nb_population=20):
+    start_width = len(df.columns.get_values())
+
+    df['accuracy'] = pd.Series()
+    df['predict'] = pd.Series()
+
+    for i in range(len(df)):
+        items = df.iloc[i]
+        interval, model = None, None
+
+        cp_data_csv = data_csv
+
+        try:
+            interval = getattr(items, 'Interval')
+            y = data_csv['close'] - data_csv['close'].shift(-interval)
+            y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+            cp_data_csv = data_csv[:len(data_csv) - interval]
+            y = y[:len(y) - interval]
+
+        except Exception:
+            print('Column \'interval\' not found.')
+
+        try:
+            model = getattr(items, 'Model')
+
+        except Exception:
+            print('Column \'model\' not found, default model set to SVM.')
+
+        if y is not None:
+            if len(cp_data_csv) == len(y):
+                population, accuracies = generate(df=cp_data_csv, y=y, model=model, nb_generations=nb_generations,
+                                                  nb_population=nb_population)
+                print('Predicting with ' + model)
+                pred = population[0].model.predict(predict_values(cp_data_csv, population[0].features))
+                df.at[i, 'accuracy'] = population[0].accuracy
+                df.at[i, 'predict'] = pred
+
+            else:
+                print('Data CSV and target with different sizes.')
+
+        else:
+            print('Could not find values for needed properties.')
+
+    if start_width != len(df.columns.get_values()):
+        print('Saving data to \'accuracy_and_predict.csv\'')
+        df.to_csv('./accuracy_and_predict.csv')
 
 
 def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0.6):

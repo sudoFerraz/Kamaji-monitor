@@ -12,6 +12,8 @@ if __name__ == '__main__':
     df = pd.read_csv('../../datasets/USDBRL/all_normalized.csv')
     df = df.drop('Date', axis=1)
 
+    t_df = pd.read_csv('./test.csv')
+
     y = df['close'] - df['close'].shift(-15)
     #y = y.shift(-1)
 
@@ -21,6 +23,8 @@ if __name__ == '__main__':
     y_regress = y_regress.reshape(-1, 1)
 
     y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+    ga.calc_with_interval(data_csv=df, info_csv=t_df, nb_population=10, nb_generations=5)
 
     '''
         Chamando initialize e passando o dataframe, APOS O TRATAMENTO QUE QUISER REALIZAR, ou seja,
@@ -46,31 +50,32 @@ if __name__ == '__main__':
 
         O ultimo parametro é a accuracia para ficar no loop, cuidado pra nao colocar um valor que nao da pra alcançar.
     '''
-    population, accuracies = ga.initialize(df, y, model='svm')
+#    population, accuracies = ga.initialize(df, y, model='svm')
 
     '''
         Para acessar a média da acurácia na geracao 3:
     '''
-    print('Media de acuracia na 3 geracao:')
-    print(np.mean(accuracies[3]))
+#    print('Media de acuracia na 3 geracao:')
+#    print(np.mean(accuracies[3]))
 
 
     '''
         Selecionando os 5 melhores da populacao
     '''
-    print('\n\nMelhores 5 acuracias encontradas')
-    first_five = population[:5]
+#    print('\n\nMelhores 5 acuracias encontradas')
+#    first_five = population[:5]
 
 
     '''
         Imprimindo a acuracia dos 5 primeiros
     '''
-    for individual in first_five:
-        print(individual.accuracy)
+#    for individual in first_five:
+#        print(individual.accuracy)
 
     '''
         Selecionando o melhor modelo, já treinado, e pronto para utilizar. Também pode utilizar para retirar as métricas
         que precisar.
     '''
-    best_model = first_five[0].model
-    print(best_model)
+#    best_model = first_five[0].model
+#    print(best_model)
+#    print(first_five[0].features)
