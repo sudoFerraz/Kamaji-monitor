@@ -15,7 +15,7 @@ if __name__ == '__main__':
     t_df = pd.read_csv('./test.csv')
 
     y = df['close'] - df['close'].shift(-15)
-    #y = y.shift(-1)
+    # y = y.shift(-1)
 
     y_regress = y
     y_regress = y_regress.fillna(method='ffill')
@@ -23,6 +23,26 @@ if __name__ == '__main__':
     y_regress = y_regress.reshape(-1, 1)
 
     y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+    '''
+        Chamada para utilizar o ga com diferentes intervalos de dias.
+        Para utilizar a função é necessário passar um CSV de dados, um CSV com as infos.
+        Sendo o de dados, os dados para treinar o modelo.
+        O CSV com as infos são para passar as informações de qual modelo e qual o intervalo de dias usar, e tais
+        colunas DEVEM ter o nome de 'Model' e 'Interval', principalmente o 'Interval', para saber o intervalo de dias a
+        ser utilizado. O modelo, caso nao encontrado irá cair para o modelo padrão que é o SVM.
+        As siglas do modelo no CSV deve seguir a seguinte nomeclatura:
+            'svm' -> Modelo SVM
+            'crf' -> Random Forrest Classifier
+            'nn' -> Para rede neural
+            'dtc' -> Decision Tree Classifier
+            
+        Valores opcionais são nb_population e nb_generations para serem utilizados no ga.
+        
+        O método nao vai retornar nada, ele vai dar um append no CSV de info, com as colunas 'accuracy' e 'predict',
+        ao fim do método é escrito todos valores no arquivo 'accuracy_and_predict.csv', junto com as informações que 
+        foram passadas.
+    '''
 
     ga.calc_with_interval(data_csv=df, info_csv=t_df, nb_population=10, nb_generations=5)
 
@@ -45,32 +65,30 @@ if __name__ == '__main__':
         Então passar o datafram e o target sao parametros obrigatorios.
         nb_generation -> numeros de geracoes
         nb_population -> numero de individuos em cada populacao
-        model -> qual modelo usar, podend ser ['svm', 'crf', 'svr', 'rrf', 'nn'] que são svm classificacao,
-        random forrest classificacao, svm de regressao e random forrest regressao e rede neural, nessa ordem.
+        model -> qual modelo usar, podend ser ['svm', 'crf', 'nn', 'dtc'] que são svm classificacao,
+        random forrest classificacao, rede neural e decision tree classifier, nessa ordem.
 
         O ultimo parametro é a accuracia para ficar no loop, cuidado pra nao colocar um valor que nao da pra alcançar.
     '''
-#    population, accuracies = ga.initialize(df, y, model='svm')
+    #    population, accuracies = ga.initialize(df, y, model='svm')
 
     '''
         Para acessar a média da acurácia na geracao 3:
     '''
-#    print('Media de acuracia na 3 geracao:')
-#    print(np.mean(accuracies[3]))
-
+    #    print('Media de acuracia na 3 geracao:')
+    #    print(np.mean(accuracies[3]))
 
     '''
         Selecionando os 5 melhores da populacao
     '''
-#    print('\n\nMelhores 5 acuracias encontradas')
-#    first_five = population[:5]
-
+    #    print('\n\nMelhores 5 acuracias encontradas')
+    #    first_five = population[:5]
 
     '''
         Imprimindo a acuracia dos 5 primeiros
     '''
-#    for individual in first_five:
-#        print(individual.accuracy)
+    #    for individual in first_five:
+    #        print(individual.accuracy)
 
     '''
         Selecionando o melhor modelo, já treinado, e pronto para utilizar. Também pode utilizar para retirar as métricas

@@ -6,13 +6,15 @@ import pandas as pd
 from keras import Sequential
 from keras.layers import Dense
 from keras.optimizers import RMSprop
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.metrics import confusion_matrix, mean_squared_error
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC, SVR
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from tqdm import trange
 
 pd.set_option('use_inf_as_na', True)
+pd.options.mode.chained_assignment = None
 
 
 def fill_values(df):
@@ -71,12 +73,14 @@ def predict_values(df, features):
 
 def train_and_score(features, df, y, model_name):
     df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features, y)
-    if model_name == 'crf':
-        model = RandomForestClassifier(n_estimators=3 * (len(features)), criterion='entropy', random_state=42)
+    if model_name == 'dtc':
+        model = DecisionTreeClassifier(criterion='entropy', random_state=42)
+        model.fit(x_train, y_train)
+        acc = model.score(x_test, y_test)
+    elif model_name == 'crf':
+        model = RandomForestClassifier(criterion='entropy', random_state=42)
         model.fit(x_test, y_test)
-        y_pred = model.predict(x_test)
-        cm = confusion_matrix(y_test, y_pred)
-        acc = (cm[0][0] + cm[1][1]) / len(y_pred)
+        acc = model.score(x_test, y_test)
     elif model_name == 'nn':
         model = Sequential()
         model.add(Dense(input_dim=len(x_train[0, :]), units=len(x_train[0, :]), activation='relu',
@@ -92,28 +96,6 @@ def train_and_score(features, df, y, model_name):
         y_pred = (y_pred > 0.5)
         cm = confusion_matrix(y_test, y_pred)
         acc = (cm[0][0] + cm[1][1]) / len(y_pred)
-    elif model_name == 'svr':
-        model = SVR(kernel='rbf')
-        sc_x = StandardScaler()
-        x_train = sc_x.fit_transform(x_train)
-        x_test = sc_x.transform(x_test)
-        sc_y = StandardScaler()
-        y_train = sc_y.fit_transform(y_train)
-        y_test = sc_y.fit_transform(y_test)
-        model.fit(x_train, y_train.ravel())
-        y_pred = model.predict(x_test)
-        acc = mean_squared_error(y_test, y_pred)
-    elif model_name == 'rrf':
-        model = RandomForestRegressor(n_estimators=3 * (len(features)), criterion='mse', random_state=42)
-        sc_x = StandardScaler()
-        x_train = sc_x.fit_transform(x_train)
-        x_test = sc_x.transform(x_test)
-        sc_y = StandardScaler()
-        y_train = sc_y.fit_transform(y_train)
-        y_test = sc_y.fit_transform(y_test)
-        model.fit(x_train, y_train.ravel())
-        y_pred = model.predict(x_test)
-        acc = mean_squared_error(y_test, y_pred)
     else:
         model = SVC(kernel='rbf', random_state=42, C=70)
         model.fit(x_train, y_train.values.ravel())
@@ -130,8 +112,7 @@ def train_models(models, df, y):
             h = model.features[:index]
             t = model.features[index + 1:]
             model.features = h + str(1 - int(model.features[index])) + t
-        # TODO remove print
-        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
+#        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
         model.train(df, y)
         i += 1
 
@@ -161,19 +142,24 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
 
-    for i in range(len(df)):
+    for i in trange(len(df)):
         items = df.iloc[i]
-        interval, model = None, None
+        interval, model, y = None, None, None
 
         cp_data_csv = data_csv
 
         try:
             interval = getattr(items, 'Interval')
-            y = data_csv['close'] - data_csv['close'].shift(-interval)
-            y = y.apply(lambda x: 1 if x > 0.0 else 0)
 
-            cp_data_csv = data_csv[:len(data_csv) - interval]
-            y = y[:len(y) - interval]
+            if isinstance(interval, np.integer):
+                y = data_csv['close'] - data_csv['close'].shift(-interval)
+                y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+                cp_data_csv = data_csv[:len(data_csv) - interval]
+                y = y[:len(y) - interval]
+
+            else:
+                print('Interval is not int type.')
 
         except Exception:
             print('Column \'interval\' not found.')
@@ -188,8 +174,16 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
             if len(cp_data_csv) == len(y):
                 population, accuracies = generate(df=cp_data_csv, y=y, model=model, nb_generations=nb_generations,
                                                   nb_population=nb_population)
-                print('Predicting with ' + model)
-                pred = population[0].model.predict(predict_values(cp_data_csv, population[0].features))
+
+                last_line = predict_values(cp_data_csv, population[0].features)
+                if model == 'nn':
+                    last_line = last_line.values.ravel()
+                    last_line = last_line.reshape(1, -1)
+                    pred = population[0].model.predict(last_line)
+                    pred = pred > 0.5
+                else:
+                    pred = population[0].model.predict(last_line)
+
                 df.at[i, 'accuracy'] = population[0].accuracy
                 df.at[i, 'predict'] = pred
 
@@ -199,6 +193,7 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
         else:
             print('Could not find values for needed properties.')
 
+    df = verify_columns(df)
     if start_width != len(df.columns.get_values()):
         print('Saving data to \'accuracy_and_predict.csv\'')
         df.to_csv('./accuracy_and_predict.csv')
@@ -214,7 +209,6 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0
     _ = 0
 
     while acc < accuracy or _ < nb_generations:
-        print('\n\nNova geracao')
         _ += 1
         train_models(population, df, y)
 
