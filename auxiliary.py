@@ -215,6 +215,33 @@ class signal_handler(object):
                 return False
         return found_signals
 
+class forecast_handler(object):
+    def create_forecast(self, session, _intervalo, _modelo):
+        new_forecast = model.Forecast(intervalo=_intervalo, modelo=_modelo)
+        session.add(new_forecast)
+        session.commit()
+        session.flush()
+        return new_forecast
+
+
+    def get_all_forecast(self, session):
+        forecasts = session.query(model.Forecast).all()
+        forecast_list= []
+        if forecasts == False:
+            return False
+        else:
+            for forecast in forecasts:
+                new_forecast = {}
+                new_forecast['intervalo'] = str(forecast.intervalo)
+                new_forecast['accuracy'] = str(forecast.accuracy)
+                new_forecast['previsao'] = str(forecast.previsao)
+                new_forecast['modelo'] = str(forecast.modelo)
+                new_forecast = json.dumps(new_forecast)
+                forecast_list.append(new_forecast)
+            return forecast_list
+
+
+
 class notification_handler(object):
     def create_notification(self, session, notification_platform,\
                              notification_message):

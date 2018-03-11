@@ -234,6 +234,28 @@ def get_strategy(indicator_id):
             req['active'] = found_strategy.accuracy
             return str(json.dumps(req)).replace("'", "")
 
+@app.route('/forecast/label/<string:model>/<int:interval>')
+@cross_origin()
+def create_forecast(model, interval):
+    if request.method == 'GET':
+        forecast_handler = auxiliary.forecast_handler()
+        new = forecast_handler.create_forecast(session, interval, model)
+        if new:
+            return "OK"
+        else:
+            return "erro"
+
+@app.route('/forecast/label/getall')
+@cross_origin()
+def get_all_forecast():
+    if request.method == 'GET':
+        forecast_handler = auxiliary.forecast_handler()
+        all_forecasts = forecast_handler.get_all_forecast(session)
+        if not all_forecasts:
+            return "erro"
+        else:
+            return str(all_forecasts).replace("'", "")
+
 @app.route('/chart/getall/line')
 @cross_origin()
 def get_chart():

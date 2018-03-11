@@ -61,6 +61,16 @@ class Notification(Base):
     date = Column(DateTime, server_default=func.now())
     message = Column(String)
 
+class Forecast(Base):
+
+    __tablename__ = "Forecast"
+    id = Column(Integer, primary_key=True)
+    intervalo = Column(Integer)
+    accuracy = Column(Float)
+    previsao = Column(Integer)
+    modelo = Column(String)
+    invoice_id = Column(String)
+
 class Invoice(Base):
 
     __tablename__ = "Invoice"
