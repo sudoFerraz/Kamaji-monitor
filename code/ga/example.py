@@ -12,7 +12,7 @@ if __name__ == '__main__':
     df = pd.read_csv('../../datasets/USDBRL/all_normalized.csv')
     df = df.drop('Date', axis=1)
 
-    t_df = pd.read_csv('./test.csv')
+    t_df = pd.read_csv('./invoices_forecast.csv')
 
     y = df['close'] - df['close'].shift(-15)
     # y = y.shift(-1)
@@ -36,11 +36,11 @@ if __name__ == '__main__':
             'crf' -> Random Forrest Classifier
             'nn' -> Para rede neural
             'dtc' -> Decision Tree Classifier
-            
+
         Valores opcionais são nb_population e nb_generations para serem utilizados no ga.
-        
+
         O método nao vai retornar nada, ele vai dar um append no CSV de info, com as colunas 'accuracy' e 'predict',
-        ao fim do método é escrito todos valores no arquivo 'accuracy_and_predict.csv', junto com as informações que 
+        ao fim do método é escrito todos valores no arquivo 'accuracy_and_predict.csv', junto com as informações que
         foram passadas.
     '''
 
