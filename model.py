@@ -45,6 +45,21 @@ class Raw_data(Base):
     price = Column(Float)
     date = Column(DateTime, server_default=func.now())
 
+class Tendece(Base):
+
+    __tablename__ = "Tendence"
+    id = Column(Integer, primary_key=True)
+    flag = Column(Boolean)
+    date = Column(DateTime, server_default=func.now())
+
+class Sugestion(Base):
+
+    __tablename__ = "Sugestion"
+    id = Column(Integer, primary_key=True)
+    sugestion = Column(String)
+    invoice_id = Column(Integer)
+    sugestion_date = Column(Datetime, server_default=func.now())
+
 class Signal(Base):
 
     __tablename__ = "Signals"
