@@ -12,7 +12,7 @@ if __name__ == '__main__':
     df = pd.read_csv('../../datasets/USDBRL/all_normalized.csv')
     df = df.drop('Date', axis=1)
 
-    t_df = pd.read_csv('./invoices_forecast.csv')
+    t_df = pd.read_csv('../../invoices_forecast.csv')
 
     y = df['close'] - df['close'].shift(-15)
     # y = y.shift(-1)

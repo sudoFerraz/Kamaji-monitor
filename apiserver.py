@@ -18,7 +18,7 @@ import pandas_datareader as web
 from datetime import datetime, timedelta
 import requests
 
-f = web.DataReader("BRL=X", 'yahoo')
+#f = web.DataReader("BRL=X", 'yahoo')
 
 
 
@@ -255,6 +255,17 @@ def get_all_forecast():
             return "erro"
         else:
             return str(all_forecasts).replace("'", "")
+
+@app.route('/forecast/invoice/getall')
+@cross_origin()
+def get_all_forecast_invoice():
+    if request.method == 'GET':
+        invoice_forecast_handler = auxiliary.invoice_forecast_handler()
+        req = invoice_forecast_handler.get_all_from_csv(session)
+        if req:
+            return req
+        else:
+            return "erro"
 
 @app.route('/chart/getall/line')
 @cross_origin()

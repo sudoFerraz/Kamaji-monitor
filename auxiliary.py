@@ -8,7 +8,7 @@ import json
 import hashlib
 import requests
 import pandas_datareader as web
-
+import pandas as pd
 from model import Users, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
 import model
 
@@ -214,6 +214,27 @@ class signal_handler(object):
             if signal.date != signal_date:
                 return False
         return found_signals
+
+class invoice_forecast_handler(object):
+
+    def get_all_from_csv(self, session):
+        df = pd.read_csv("code/ga/accuracy_and_predict.csv")
+        invoice_list = []
+        for i in range(len(df)):
+            req = {}
+            invoice_id = df.iloc[i]["ID"]
+            invoice = session.query(model.Invoice).filter_by(id=invoice_id).first()
+            req['dt_vencimento'] = invoice.dt_vencimento
+            req['dolar_provisao'] = invoice.dolar_provisao
+            req['fornecedor'] = invoice.fornecedor
+            req['valor'] = invoice.valor_invoice
+            req['previsao'] = df.iloc[i]["predict"]
+            req['accuracy'] = df.iloc[i]["accuracy"]
+            req['sugestao'] = 'null'
+            invoice_list.append(json.dumps(req))
+        return str(invoice_list).replace("'", "")
+
+
 
 class forecast_handler(object):
     def create_forecast(self, session, _intervalo, _modelo):
