@@ -141,6 +141,7 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
 
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
+    df['sugestao'] = pd.Series('null', index=range(len(df)))
 
     for i in trange(len(df)):
         items = df.iloc[i]
