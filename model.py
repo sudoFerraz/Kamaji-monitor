@@ -58,7 +58,7 @@ class Sugestion(Base):
     id = Column(Integer, primary_key=True)
     sugestion = Column(String)
     invoice_id = Column(Integer)
-    sugestion_date = Column(Datetime, server_default=func.now())
+    sugestion_date = Column(DateTime, server_default=func.now())
 
 class Signal(Base):
 
