@@ -63,8 +63,10 @@ while True:
     label_forecast.to_csv('label_forecast.csv', mode='w', header=True)
     label_forecast = pd.read_csv('code/ga/0.csv')
     for forecast in forecasts:
-        forecast.accuracy = label_forecast['accuracy'][i]
-        foreccast.predict = label_forecast['predict'][i]
+        for i in range(0, len(label_forecast)):
+            if forecast.id == label_forecast['ID'][i]:
+                forecast.accuracy = label_forecast['accuracy'][i]
+                foreccast.predict = label_forecast['predict'][i]
     session.commit()
     session.flush()
     macd_histogram = data['macdh']
