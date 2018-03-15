@@ -45,7 +45,7 @@ class Raw_data(Base):
     price = Column(Float)
     date = Column(DateTime, server_default=func.now())
 
-class Tendece(Base):
+class Tendence(Base):
 
     __tablename__ = "Tendence"
     id = Column(Integer, primary_key=True)

@@ -12,8 +12,11 @@ if __name__ == '__main__':
     df = pd.read_csv('../../datasets/USDBRL/all_normalized.csv')
     df = df.drop('Date', axis=1)
 
-    t_df = pd.read_csv('../../invoices_forecast.csv')
-
+    t_df = []
+    invoice_df = pd.read_csv('../../invoices_forecast.csv')
+    label_df = pd.read_csv('../../label_forecast.csv')
+    t_df.append(invoice_df)
+    t_df.append(label_df)
     y = df['close'] - df['close'].shift(-15)
     # y = y.shift(-1)
 
@@ -28,10 +31,10 @@ if __name__ == '__main__':
         Chamada para utilizar o ga com diferentes intervalos de dias.
         Para utilizar a função é necessário passar um CSV de dados, um CSV com as infos.
         Sendo o de dados, os dados para treinar o modelo.
-        
-        Esse parametro pode ser tanto um dataframe do pandas, ou uma lista de dataframes, sendo passados no tipo 
+
+        Esse parametro pode ser tanto um dataframe do pandas, ou uma lista de dataframes, sendo passados no tipo
         primitivo list. => []
-        
+
         O CSV com as infos são para passar as informações de qual modelo e qual o intervalo de dias usar, e tais
         colunas DEVEM ter o nome de 'Model' e 'Interval', principalmente o 'Interval', para saber o intervalo de dias a
         ser utilizado. O modelo, caso nao encontrado irá cair para o modelo padrão que é o SVM.

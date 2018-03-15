@@ -48,18 +48,37 @@ while True:
     except:
         pass
     data = StockDataFrame.retype(pd.read_csv('brlusd.csv'))
+    forecasts = session.query(model.Forecast).all()
+    id_list = []
+    model_list = []
+    interval_list = []
+    if forecasts == False:
+        pass
+    else:
+        for forecast in forecasts:
+            id_list.append(forecast.id)
+            model_list.append(forecast.modelo)
+            interval_list.append(forecast.intervalo)
+    label_forecast = pd.DataFrame({'ID':id_list, 'Interval':interval_list, 'Model':model_list})
+    label_forecast.to_csv('label_forecast.csv', mode='w', header=True)
+    label_forecast = pd.read_csv('code/ga/0.csv')
+    for forecast in forecasts:
+        forecast.accuracy = label_forecast['accuracy'][i]
+        foreccast.predict = label_forecast['predict'][i]
+    session.commit()
+    session.flush()
     macd_histogram = data['macdh']
     last_tendence = macd_histogram[-1]
     if last_tendence > 0:
-        last_tendence = 1
+        last_tendence = True
     else:
-        last_tendence = 0
+        last_tendence = False
     tendence = session.query(model.Tendence).first()
     if not tendence:
-        if last_tendence > 0:
-            new_signal = model.Tendence(flag=1)
+        if last_tendence == True:
+            new_signal = model.Tendence(flag=True)
         else:
-            new_signal = model.Tendence(flag=0)
+            new_signal = model.Tendence(flag=False)
         session.add(new_signal)
         session.commit()
         session.flush()
