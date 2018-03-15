@@ -197,7 +197,7 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
     df = verify_columns(df)
     if start_width != len(df.columns.get_values()):
         print('Saving data to \'accuracy_and_predict.csv\'')
-        df.to_csv('./accuracy_and_predict.csv')
+        df.to_csv('./' + df.name + '.csv')
 
 
 def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0.6):
