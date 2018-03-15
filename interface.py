@@ -17,6 +17,7 @@ from prettytable import PrettyTable
 table = PrettyTable()
 from datetime import datetime
 from datetime import timedelta
+import forecast_interface
 
 while True:
     try:
@@ -29,7 +30,10 @@ while True:
         pass
     f = Figlet(font='epic')
     print f.renderText('Kamaji')
-
+    try:
+        forecast_interface.forecast()
+    except:
+        pass
     os_tools = auxiliary.ostools()
     session = os_tools.db_connection()
     user_handler = auxiliary.user_handler()

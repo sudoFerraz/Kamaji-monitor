@@ -29,4 +29,4 @@ for invoice in invoices:
             invoice_df.loc[i] = invoice.nro_invoice, invoice.dt_vencimento, invoice.dt_pagamento, invoice.valor_invoice, dolar_vencimento, invoice.dolar_provisao, invoice.dolar_pagamento, invoice.valor_pago, savings_provisao, savings_vencimento, total_vencimento, total_provisao
             i = i + 1
 
-invoice_df.to_csv('../kamaji-front-end/results.csv', mode='w', header=True)
+invoice_df.to_csv('../kamaji/results.csv', mode='w', header=True)
