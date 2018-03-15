@@ -28,6 +28,10 @@ if __name__ == '__main__':
         Chamada para utilizar o ga com diferentes intervalos de dias.
         Para utilizar a função é necessário passar um CSV de dados, um CSV com as infos.
         Sendo o de dados, os dados para treinar o modelo.
+        
+        Esse parametro pode ser tanto um dataframe do pandas, ou uma lista de dataframes, sendo passados no tipo 
+        primitivo list. => []
+        
         O CSV com as infos são para passar as informações de qual modelo e qual o intervalo de dias usar, e tais
         colunas DEVEM ter o nome de 'Model' e 'Interval', principalmente o 'Interval', para saber o intervalo de dias a
         ser utilizado. O modelo, caso nao encontrado irá cair para o modelo padrão que é o SVM.
