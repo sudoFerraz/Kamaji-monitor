@@ -218,7 +218,7 @@ class signal_handler(object):
 class invoice_forecast_handler(object):
 
     def get_all_from_csv(self, session):
-        df = pd.read_csv("code/ga/accuracy_and_predict.csv")
+        df = pd.read_csv("code/ga/0.csv")
         invoice_list = []
         for i in range(len(df)):
             req = {}
