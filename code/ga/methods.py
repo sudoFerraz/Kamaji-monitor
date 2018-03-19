@@ -57,7 +57,7 @@ def create_dataframe(df, features, y):
     nb_classes = len(df.columns.get_values())
     x = df.iloc[:, :]
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, shuffle=False)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
     return df, x_train, x_test, y_train, y_test, nb_classes
 
 
