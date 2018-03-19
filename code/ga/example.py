@@ -14,9 +14,15 @@ if __name__ == '__main__':
 
     t_df = []
     invoice_df = pd.read_csv('../../invoices_forecast.csv')
-    label_df = pd.read_csv('../../label_forecast.csv')
+    invoice_df1 = pd.read_csv('../../invoices_forecast.csv')
+    invoice_df2 = pd.read_csv('../../invoices_forecast.csv')
+
+
+#    label_df = pd.read_csv('../../label_forecast.csv')
     t_df.append(invoice_df)
-    t_df.append(label_df)
+    t_df.append(invoice_df1)
+#    t_df.append(invoice_df2)
+#    t_df.append(label_df)
     y = df['close'] - df['close'].shift(-15)
     # y = y.shift(-1)
 
@@ -51,7 +57,7 @@ if __name__ == '__main__':
         foram passadas.
     '''
 
-    ga.calc_with_interval(data_csv=df, info_csv=t_df, nb_population=10, nb_generations=5)
+    ga.calc_with_interval(data_csv=df, info_csv=t_df, nb_population=20, nb_generations=10)
 
     '''
         Chamando initialize e passando o dataframe, APOS O TRATAMENTO QUE QUISER REALIZAR, ou seja,

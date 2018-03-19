@@ -55,9 +55,9 @@ def create_dataframe(df, features, y):
             df = df.drop(labels=names[i], axis=1)
 
     nb_classes = len(df.columns.get_values())
-    x = df.iloc[:, range(nb_classes)].values.astype(np.float)
+    x = df.iloc[:, :]
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, shuffle=False)
     return df, x_train, x_test, y_train, y_test, nb_classes
 
 
@@ -136,9 +136,22 @@ def generation_score(dict, population, generation):
     return dict
 
 
-def begin(data_csv, df, nb_generations=10, nb_population=20):
-    start_width = len(df.columns.get_values())
+def use_greater_accuracy(df):
+    for i in range(len(df)):
+        pivot = df.iloc[i]
+        for j in range(len(df)):
+            to_verify = df.iloc[j]
+            if i != j:
+                if to_verify['Interval'] == pivot['Interval'] and to_verify['Model'] == pivot['Model']:
+                    if to_verify['accuracy'] > pivot['accuracy']:
+                        df.at[int(i), 'predict'] = to_verify['predict']
+                    else:
+                        df.at[int(j), 'predict'] = pivot['predict']
 
+    return df
+
+
+def begin(data_csv, df, nb_generations=10, nb_population=20):
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
     df['sugestao'] = pd.Series('null', index=range(len(df)))
@@ -156,34 +169,35 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
                 y = data_csv['close'] - data_csv['close'].shift(-interval)
                 y = y.apply(lambda x: 1 if x > 0.0 else 0)
 
-                cp_data_csv = data_csv[:len(data_csv) - interval]
-                y = y[:len(y) - interval]
+                if interval > 0:
+                    cp_data_csv = data_csv[:len(data_csv) - interval]
+                    y = y[:len(y) - interval]
+                else:
+                    cp_data_csv = data_csv[interval:]
+                    y = y[interval:]
 
             else:
                 print('Interval is not int type.')
 
         except Exception:
-            print('Column \'interval\' not found.')
+            print('Column \'Interval\' not found.')
 
         try:
             model = getattr(items, 'Model')
 
         except Exception:
-            print('Column \'model\' not found, default model set to SVM.')
+            print('Column \'Model\' not found, default model set to SVM.')
 
         if y is not None:
             if len(cp_data_csv) == len(y):
-                population, accuracies = generate(df=cp_data_csv, y=y, model=model, nb_generations=nb_generations,
-                                                  nb_population=nb_population)
+                population, accuracies = generate(df=cp_data_csv, y=y, nb_generations=nb_generations,
+                                                  nb_population=nb_population, model=model)
 
                 last_line = predict_values(cp_data_csv, population[0].features)
-                if model == 'nn':
-                    last_line = last_line.values.ravel()
-                    last_line = last_line.reshape(1, -1)
-                    pred = population[0].model.predict(last_line)
-                    pred = pred > 0.5
-                else:
-                    pred = population[0].model.predict(last_line)
+                last_line = last_line.values.ravel()
+                last_line = last_line.reshape(1, -1)
+                pred = population[0].model.predict(last_line)
+                pred = pred > 0.5
 
                 df.at[i, 'accuracy'] = population[0].accuracy
                 df.at[i, 'predict'] = pred
@@ -194,22 +208,16 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
         else:
             print('Could not find values for needed properties.')
 
-    df = verify_columns(df)
-    if start_width != len(df.columns.get_values()):
-        print('Saving data to \'' + df.name + '\'')
-        df.to_csv('./' + df.name + '.csv')
 
-
-def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0.6):
+def generate(df, y, nb_generations=10, nb_population=20, model='svm'):
     df = verify_columns(df)
     features = initial_features(nb_population, len(df.columns.get_values()))
     optimizer = ga.GA(features)
     population = optimizer.create_population(nb_population, model)
     generations_accuracies = {}
-    acc = 0.0
     _ = 0
 
-    while acc < accuracy or _ < nb_generations:
+    while _ < nb_generations:
         _ += 1
         train_models(population, df, y)
 
@@ -218,6 +226,5 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0
             population = optimizer.evolve(population)
 
         population = sorted(population, key=lambda m: m.accuracy, reverse=True)
-        acc = np.mean(generations_accuracies[_])
 
     return population, generations_accuracies

@@ -13,9 +13,31 @@ def calc_with_interval(data_csv, info_csv, nb_generations=10, nb_population=20):
             info_csv[name].name = str(name)
             methods.begin(data_csv=data_csv, df=info_csv[name], nb_generations=nb_generations,
                           nb_population=nb_population)
+
+        for k in range(len(info_csv)):
+            pivot_df = info_csv[k]
+            for n in range(len(info_csv)):
+                verify_df = info_csv[n]
+                for i in range(len(pivot_df)):
+                    pivot_row = pivot_df.iloc[i]
+                    for j in range(len(verify_df)):
+                        to_verify = verify_df.iloc[j]
+                        if to_verify['Interval'] == pivot_row['Interval'] and \
+                                to_verify['Model'] == pivot_row['Model']:
+
+                            if to_verify['accuracy'] > pivot_row['accuracy']:
+                                pivot_df.at[i, 'predict'] = to_verify['predict']
+                            else:
+                                verify_df.at[j, 'predict'] = pivot_row['predict']
+        for df in info_csv:
+            print('File saved into ' + df.name + '.csv.')
+            df.to_csv('./' + df.name + '.csv')
+
     elif type(info_csv) == pd.core.frame.DataFrame:
         info_csv.name = 'generated'
         methods.begin(data_csv=data_csv, df=info_csv, nb_generations=nb_generations, nb_population=nb_population)
+        print('File saved into ' + info_csv.name + '.csv.')
+        info_csv.to_csv('./' + info_csv.name + '.csv')
 
     else:
-        print('Could not determine \'info_csv\' type. Between \'list\' or \'pd.core.frame.DataFrame\'')
+        print('Could not determine \'info_csv\' type. Must be \'list\' or \'pd.core.frame.DataFrame\'')
