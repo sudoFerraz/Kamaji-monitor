@@ -9,7 +9,7 @@ import hashlib
 import requests
 import pandas_datareader as web
 import pandas as pd
-from model import Users, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
+from model import Users, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
 import model
 
 
