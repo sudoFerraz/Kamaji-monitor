@@ -9,11 +9,11 @@ from sqlalchemy.sql import func
 
 Base = declarative_base()
 
-class CSV(Base):
-    __tablename__ = 'CSVs'
-    id = Column(Integer, primary_key=True)
-    csv_file = Column(LargeBinary)
-    csv_name = Column(String)
+#class CSV(Base):
+#    __tablename__ = 'CSVs'
+#    id = Column(Integer, primary_key=True)
+#    csv_file = Column(LargeBinary)
+#    csv_name = Column(String)
 """
 class Relatorios(Base):
     __tablename__ = 'Relatorios'
@@ -38,12 +38,12 @@ class Users(Base):
     usertype = Column(String)
 
 
-class Raw_data(Base):
-
-    __tablename__ = "Machine"
-    id = Column(Integer, primary_key=True)
-    price = Column(Float)
-    date = Column(DateTime, server_default=func.now())
+#class Raw_data(Base):
+#
+#    __tablename__ = "Machine"
+#    id = Column(Integer, primary_key=True)
+#    price = Column(Float)
+#    date = Column(DateTime, server_default=func.now())
 
 class Tendence(Base):
 
@@ -147,3 +147,5 @@ class Action(Base):
 engine = create_engine('postgresql://postgres:postgres@localhost/postgres')
 Session = sessionmaker(bind=engine)
 Base.metadata.create_all(engine)
+from eralchemy import render_er
+render_er(Base, 'erd_from_sqlalchemy.png')
