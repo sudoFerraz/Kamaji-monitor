@@ -1,2 +1,2 @@
 # Kamaji
-#### Documentation provided in Dcs.ipynb
+#### Documentation provided in Docs.ipynb
