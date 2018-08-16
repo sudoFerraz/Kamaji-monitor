@@ -1,6 +1,7 @@
 import random
 
 import algorithm as ga
+import glob
 import numpy as np
 import pandas as pd
 from keras import Sequential
@@ -71,14 +72,16 @@ def predict_values(df, features):
     return df.tail(1)
 
 
-def train_and_score(features, df, y, model_name):
+def train_and_score(features, df, y, model_name, configuration):
     df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features, y)
     if model_name == 'dtc':
-        model = DecisionTreeClassifier(criterion='entropy', random_state=42)
+        model = DecisionTreeClassifier(criterion=configuration['DTC']['Criterion'],
+                                       random_state=int(configuration['DTC']['Seed']))
         model.fit(x_train, y_train)
         acc = model.score(x_test, y_test)
     elif model_name == 'crf':
-        model = RandomForestClassifier(criterion='entropy', random_state=42)
+        model = RandomForestClassifier(criterion=configuration['CRF']['Criterion'],
+                                       random_state=int(configuration['CRF']['Seed']))
         model.fit(x_test, y_test)
         acc = model.score(x_test, y_test)
     elif model_name == 'nn':
@@ -97,7 +100,9 @@ def train_and_score(features, df, y, model_name):
         cm = confusion_matrix(y_test, y_pred)
         acc = (cm[0][0] + cm[1][1]) / len(y_pred)
     else:
-        model = SVC(kernel='rbf', random_state=42, C=70)
+        model = SVC(kernel=configuration['SVM']['Kernel'],
+                    random_state=int(configuration['SVM']['Seed']),
+                    C=int(configuration['SVM']['C']))
         model.fit(x_train, y_train.values.ravel())
         acc = model.score(x_test, y_test)
 
@@ -151,7 +156,7 @@ def use_greater_accuracy(df):
     return df
 
 
-def begin(data_csv, df, nb_generations=10, nb_population=20):
+def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None):
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
     df['sugestao'] = pd.Series('null', index=range(len(df)))
@@ -191,7 +196,7 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
         if y is not None:
             if len(cp_data_csv) == len(y):
                 population, accuracies = generate(df=cp_data_csv, y=y, nb_generations=nb_generations,
-                                                  nb_population=nb_population, model=model)
+                                                  nb_population=nb_population, model=model, configuration=configuration)
 
                 last_line = predict_values(cp_data_csv, population[0].features)
                 last_line = last_line.values.ravel()
@@ -209,10 +214,10 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
             print('Could not find values for needed properties.')
 
 
-def generate(df, y, nb_generations=10, nb_population=20, model='svm'):
+def generate(df, y, nb_generations=10, nb_population=20, model='svm', configuration=None):
     df = verify_columns(df)
     features = initial_features(nb_population, len(df.columns.get_values()))
-    optimizer = ga.GA(features)
+    optimizer = ga.GA(features, configuration)
     population = optimizer.create_population(nb_population, model)
     generations_accuracies = {}
     _ = 0
@@ -228,3 +233,28 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm'):
         population = sorted(population, key=lambda m: m.accuracy, reverse=True)
 
     return population, generations_accuracies
+
+
+def verify_past_predictions(answer, interval=1):
+    recent_predictions_names = glob.glob('./[0-9].csv')
+
+    info = list()
+
+    for name in recent_predictions_names:
+        right = 0
+        total = 0
+        predicted_csv = pd.read_csv(name)
+
+        for index, row in predicted_csv:
+            if row['Interval'] == interval:
+                total += 1
+
+                if row['predict'] == answer:
+                    right += 1
+
+        info.append({'csv_name': name,
+                     'total_predictions': total,
+                     'right_answers': right}
+                    )
+
+    return info

@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 import os
 import genetic_algorithm as ga
+from methods import verify_past_predictions
 import numpy as np
 import pandas as pd
+import configparser
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -17,12 +19,11 @@ if __name__ == '__main__':
     invoice_df1 = pd.read_csv('../../invoices_forecast.csv')
     invoice_df2 = pd.read_csv('../../invoices_forecast.csv')
 
-
-#    label_df = pd.read_csv('../../label_forecast.csv')
+    #    label_df = pd.read_csv('../../label_forecast.csv')
     t_df.append(invoice_df)
-    t_df.append(invoice_df1)
-#    t_df.append(invoice_df2)
-#    t_df.append(label_df)
+    #    t_df.append(invoice_df1)
+    #    t_df.append(invoice_df2)
+    #    t_df.append(label_df)
     y = df['close'] - df['close'].shift(-15)
     # y = y.shift(-1)
 
@@ -32,6 +33,33 @@ if __name__ == '__main__':
     y_regress = y_regress.reshape(-1, 1)
 
     y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+    config = configparser.ConfigParser()
+    config.read('./configuration.txt')
+
+    '''
+        Como as previsões passadas estão salvas, tantos na pasta `dataframes` como nos csv
+        gerados em execução, é possível verificar se as previsões passadas foram corretas.
+        Para o momento, só é possivel verificar as predições de intervalo de dias igual a 
+        1, ou seja, a previsão de ontem.
+        
+        A assinatura do método é:
+            verify_past_predictions(answer, interval=1)
+            
+        Onde answer será somente um único número, que é a previsão certa de ontem. Assim, o
+        método irá verificar em todos os csv criados em execução e irá verificar se a predição
+        dele condiz com o valor real da predição.
+        
+        Como retorno terá uma lista cheia de dicionários, um dicionário para cada csv, com 
+        as informações de quantas predições fez de intervalo 1 e quantas foram certas.
+            
+        
+        Tendo em mãos a resposta certa da previsão de ontem, um número 0 ou 1, faça o seguinte:
+    '''
+
+    # note que a váriavel y iniciado na linha 28 tem intervalo 15, usado somente para exemplificação
+    past_predictions = verify_past_predictions(y.iloc[-1])
+    print(past_predictions)
 
     '''
         Chamada para utilizar o ga com diferentes intervalos de dias.
@@ -57,7 +85,11 @@ if __name__ == '__main__':
         foram passadas.
     '''
 
-    ga.calc_with_interval(data_csv=df, info_csv=t_df, nb_population=20, nb_generations=10)
+    ga.calc_with_interval(data_csv=df,
+                          info_csv=t_df,
+                          nb_population=int(config['DEFAULT']['Population']),
+                          nb_generations=int(config['DEFAULT']['Generations']),
+                          configuration=config)
 
     '''
         Chamando initialize e passando o dataframe, APOS O TRATAMENTO QUE QUISER REALIZAR, ou seja,
@@ -73,7 +105,7 @@ if __name__ == '__main__':
 
 
         A assinatura do método é a seguinte
-        initialize(df, y, nb_generations=10, nb_population=20, model='svm', accuracy=0.6)
+        initialize(df, y, configuration, nb_generations=10, nb_population=20, model='svm', accuracy=0.6)
 
         Então passar o datafram e o target sao parametros obrigatorios.
         nb_generation -> numeros de geracoes
@@ -83,7 +115,7 @@ if __name__ == '__main__':
 
         O ultimo parametro é a accuracia para ficar no loop, cuidado pra nao colocar um valor que nao da pra alcançar.
     '''
-    #    population, accuracies = ga.initialize(df, y, model='svm')
+    #    population, accuracies = ga.initialize(df, y, config, model=config['DEFAULT']['Model'])
 
     '''
         Para acessar a média da acurácia na geracao 3:
