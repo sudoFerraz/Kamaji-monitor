@@ -100,9 +100,17 @@ def train_and_score(features, df, y, model_name, configuration):
         cm = confusion_matrix(y_test, y_pred)
         acc = (cm[0][0] + cm[1][1]) / len(y_pred)
     else:
-        model = SVC(kernel=configuration['SVM']['Kernel'],
+        model = SVC(C=int(configuration['SVM']['C']),
+                    kernel=configuration['SVM']['Kernel'],
+                    degree=int(configuration['SVM']['Degree']),
+                    gamma=configuration['SVM']['Gamma'],
+                    coef0=float(configuration['SVM']['Coef0']),
+                    probability=bool(configuration['SVM']['Probability']),
+                    shrinking=bool(configuration['SVM']['Shrinking']),
+                    tol=float(configuration['SVM']['Tol']),
+                    decision_function_shape=configuration['SVM']['Decision'],
                     random_state=int(configuration['SVM']['Seed']),
-                    C=int(configuration['SVM']['C']))
+                    )
         model.fit(x_train, y_train.values.ravel())
         acc = model.score(x_test, y_test)
 
@@ -245,7 +253,7 @@ def verify_past_predictions(answer, interval=1):
         total = 0
         predicted_csv = pd.read_csv(name)
 
-        for index, row in predicted_csv:
+        for index, row in predicted_csv.iterrows():
             if row['Interval'] == interval:
                 total += 1
 

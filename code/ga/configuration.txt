@@ -2,14 +2,21 @@
 [DEFAULT]
 Model = svm
 Population = 20
-Generations = 15
+Generations = 1
 
 # Informações referentes ao SVM:
 # Aqui podem ser encontradas mais informações:
-# http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html
+# http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 [SVM]
 C = 70
 Kernel = rbf
+Degree = 3
+Gamma = auto
+Coef0 = 0.0
+Probability = False
+Shrinking = True
+Tol = 0.001
+Decision = ovr
 Seed = 42
 
 # Informações referentes decision tree:
