@@ -3,6 +3,9 @@
 Model = svm
 Population = 20
 Generations = 1
+Retain = 0.25
+RandSelect = 0.1
+Mutation = 0.2
 
 # Informações referentes ao SVM:
 # Aqui podem ser encontradas mais informações:

@@ -225,7 +225,11 @@ def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None)
 def generate(df, y, nb_generations=10, nb_population=20, model='svm', configuration=None):
     df = verify_columns(df)
     features = initial_features(nb_population, len(df.columns.get_values()))
-    optimizer = ga.GA(features, configuration)
+    optimizer = ga.GA(features=features,
+                      configuration=configuration,
+                      retain=float(configuration['DEFAULT']['Retain']),
+                      random_select=float(configuration['DEFAULT']['RandSelect']),
+                      mutation=float(configuration['DEFAULT']['Mutation']))
     population = optimizer.create_population(nb_population, model)
     generations_accuracies = {}
     _ = 0
