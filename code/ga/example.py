@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import configparser
 import os
+
 import genetic_algorithm as ga
-from methods import verify_past_predictions
 import numpy as np
 import pandas as pd
-import configparser
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
