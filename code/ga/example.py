@@ -38,30 +38,6 @@ if __name__ == '__main__':
     config.read('./configuration.txt')
 
     '''
-        Como as previsões passadas estão salvas, tantos na pasta `dataframes` como nos csv
-        gerados em execução, é possível verificar se as previsões passadas foram corretas.
-        Para o momento, só é possivel verificar as predições de intervalo de dias igual a 
-        1, ou seja, a previsão de ontem.
-        
-        A assinatura do método é:
-            verify_past_predictions(answer, interval=1)
-            
-        Onde answer será somente um único número, que é a previsão certa de ontem. Assim, o
-        método irá verificar em todos os csv criados em execução e irá verificar se a predição
-        dele condiz com o valor real da predição.
-        
-        Como retorno terá uma lista cheia de dicionários, um dicionário para cada csv, com 
-        as informações de quantas predições fez de intervalo 1 e quantas foram certas.
-            
-        
-        Tendo em mãos a resposta certa da previsão de ontem, um número 0 ou 1, faça o seguinte:
-    '''
-
-    # note que a váriavel y iniciado na linha 28 tem intervalo 15, usado somente para exemplificação
-    past_predictions = verify_past_predictions(y.iloc[-1])
-    print(past_predictions)
-
-    '''
         Chamada para utilizar o ga com diferentes intervalos de dias.
         Para utilizar a função é necessário passar um CSV de dados, um CSV com as infos.
         Sendo o de dados, os dados para treinar o modelo.

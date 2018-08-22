@@ -245,28 +245,3 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', configurat
         population = sorted(population, key=lambda m: m.accuracy, reverse=True)
 
     return population, generations_accuracies
-
-
-def verify_past_predictions(answer, interval=1):
-    recent_predictions_names = glob.glob('./[0-9].csv')
-
-    info = list()
-
-    for name in recent_predictions_names:
-        right = 0
-        total = 0
-        predicted_csv = pd.read_csv(name)
-
-        for index, row in predicted_csv.iterrows():
-            if row['Interval'] == interval:
-                total += 1
-
-                if row['predict'] == answer:
-                    right += 1
-
-        info.append({'csv_name': name,
-                     'total_predictions': total,
-                     'right_answers': right}
-                    )
-
-    return info
