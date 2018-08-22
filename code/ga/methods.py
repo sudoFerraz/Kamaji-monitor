@@ -1,5 +1,8 @@
 import random
 
+from datetime import datetime, timedelta
+import time
+import os
 import algorithm as ga
 import glob
 import numpy as np
@@ -164,13 +167,40 @@ def use_greater_accuracy(df):
     return df
 
 
+def create_history(info):
+    if not os.path.exists('./history'):
+        try:
+            os.makedirs('./history')
+        except OSError:
+            print('[-] Error while creating directory for history')
+
+    name = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d') + '.csv'
+    info.to_csv(os.path.join('./history/', name))
+
+
 def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None):
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
     df['sugestao'] = pd.Series('null', index=range(len(df)))
 
+    history_info = {
+        'creation_date': list(),
+        'day_interval': list(),
+        'predict': list(),
+        'verified': list(),
+        'answer': list(),
+        'right': list()
+    }
+
     for i in trange(len(df)):
         items = df.iloc[i]
+
+        history_info['creation_date'].append(datetime.fromtimestamp(time.time())
+                                             .strftime('%Y-%m-%d'))
+        history_info['verified'].append(False)
+        history_info['answer'].append(None)
+        history_info['right'].append(False)
+
         interval, model, y = None, None, None
 
         cp_data_csv = data_csv
@@ -181,6 +211,8 @@ def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None)
             if isinstance(interval, np.integer):
                 y = data_csv['close'] - data_csv['close'].shift(-interval)
                 y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+                history_info['day_interval'].append(interval)
 
                 if interval > 0:
                     cp_data_csv = data_csv[:len(data_csv) - interval]
@@ -215,11 +247,15 @@ def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None)
                 df.at[i, 'accuracy'] = population[0].accuracy
                 df.at[i, 'predict'] = pred
 
+                history_info['predict'].append(1 if pred else 0)
+
             else:
                 print('Data CSV and target with different sizes.')
 
         else:
             print('Could not find values for needed properties.')
+
+    create_history(pd.DataFrame(data=history_info))
 
 
 def generate(df, y, nb_generations=10, nb_population=20, model='svm', configuration=None):
@@ -247,26 +283,28 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', configurat
     return population, generations_accuracies
 
 
-def verify_past_predictions(answer, interval=1):
-    recent_predictions_names = glob.glob('./[0-9].csv')
+def verify_past_predictions(answer):
+    if os.path.exists('./history'):
+        recent_predictions_names = glob.glob('./history/*.csv')
+    else:
+        recent_predictions_names = list()
 
-    info = list()
+    print('[+] Verifying past predictions')
 
     for name in recent_predictions_names:
-        right = 0
-        total = 0
         predicted_csv = pd.read_csv(name)
 
-        for index, row in predicted_csv.iterrows():
-            if row['Interval'] == interval:
-                total += 1
+        for index in range(len(predicted_csv)):
+            row = predicted_csv.loc[index]
 
-                if row['predict'] == answer:
-                    right += 1
+            day_interval = int(row['day_interval'])
 
-        info.append({'csv_name': name,
-                     'total_predictions': total,
-                     'right_answers': right}
-                    )
+            string_day = (datetime.today() - timedelta(days=day_interval))\
+                .strftime('%Y-%m-%d')
 
-    return info
+            if row['creation_date'] == string_day and not bool(row['verified']):
+                predicted_csv.at[index, 'answer'] = answer
+                predicted_csv.at[index, 'right'] = int(row['predict']) == answer
+                predicted_csv.at[index, 'verified'] = True
+
+        predicted_csv.to_csv(name, index=False)
