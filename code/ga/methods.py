@@ -128,7 +128,7 @@ def train_models(models, df, y):
             h = model.features[:index]
             t = model.features[index + 1:]
             model.features = h + str(1 - int(model.features[index])) + t
-#        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
+        #        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
         model.train(df, y)
         i += 1
 
@@ -283,28 +283,53 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm', configurat
     return population, generations_accuracies
 
 
-def verify_past_predictions(answer):
+def get_values_n_days_ago(interval):
+    df = pd.read_csv('../../datasets/USDBRL/all_indicators.csv')
+
+    row = df.iloc[-interval]
+    return row['open'], row['close']
+
+
+def delete_verified_history(names):
+    map(os.remove, names)
+
+
+def verify_past_predictions():
     if os.path.exists('./history'):
         recent_predictions_names = glob.glob('./history/*.csv')
     else:
         recent_predictions_names = list()
 
     print('[+] Verifying past predictions')
+    _, yesterday_close = get_values_n_days_ago(1)
+    dataframes_to_delete = list()
 
-    for name in recent_predictions_names:
-        predicted_csv = pd.read_csv(name)
+    with open('results.csv', 'a', newline='') as results:
+        for name in recent_predictions_names:
+            predicted_csv = pd.read_csv(name)
 
-        for index in range(len(predicted_csv)):
-            row = predicted_csv.loc[index]
+            for index in range(len(predicted_csv)):
+                row = predicted_csv.loc[index]
 
-            day_interval = int(row['day_interval'])
+                day_interval = int(row['day_interval'])
 
-            string_day = (datetime.today() - timedelta(days=day_interval))\
-                .strftime('%Y-%m-%d')
+                string_day = (datetime.today() - timedelta(days=day_interval)) \
+                    .strftime('%Y-%m-%d')
 
-            if row['creation_date'] == string_day and not bool(row['verified']):
-                predicted_csv.at[index, 'answer'] = answer
-                predicted_csv.at[index, 'right'] = int(row['predict']) == answer
-                predicted_csv.at[index, 'verified'] = True
+                if row['creation_date'] == string_day and not bool(row['verified']):
+                    interval_opening, _ = get_values_n_days_ago(day_interval)
+                    answer = 1 if interval_opening - yesterday_close > 0 else 0
 
-        predicted_csv.to_csv(name, index=False)
+                    predicted_csv.at[index, 'answer'] = answer
+                    predicted_csv.at[index, 'right'] = int(row['predict']) == answer
+                    predicted_csv.at[index, 'verified'] = True
+
+                    results.write(string_day + ',' + str(day_interval) + ',' +
+                                  str(row['predict']) + ',' + str(answer))
+
+            if predicted_csv['verified'].eq(True).all():
+                dataframes_to_delete.append(name)
+
+            predicted_csv.to_csv(name, index=False)
+
+    delete_verified_history(dataframes_to_delete)

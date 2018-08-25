@@ -57,8 +57,7 @@ if __name__ == '__main__':
         Tendo em mãos a resposta certa da previsão de ontem, um número 0 ou 1, faça o seguinte:
     '''
 
-    # note que a váriavel y iniciado na linha 28 tem intervalo 15, usado somente para exemplificação
-    past_predictions = verify_past_predictions(y.iloc[-1])
+    past_predictions = verify_past_predictions()
     print(past_predictions)
 
     '''
