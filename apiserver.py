@@ -245,6 +245,15 @@ def create_forecast(model, interval):
         else:
             return "erro"
 
+@app.route('/forecast/delete/<int:forecast_id>')
+@cross_origin
+def delete_forecast(forecast_id):
+	if request.method == 'GET':
+		deleted = session.query(model.Forecast).filter_by(id=forecast_id).delete()
+		session.commit()
+		session.flush()
+		return "ok"
+
 @app.route('/forecast/label/getall')
 @cross_origin()
 def get_all_forecast():
@@ -286,7 +295,7 @@ def get_candle():
 @cross_origin()
 def get_overview():
     if request.method == 'GET':
-        return 'False'
+        return '1'
 
 @app.route('/indicator/getdata/low')
 @cross_origin()

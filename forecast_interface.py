@@ -21,6 +21,10 @@ def forecast():
 	    now = datetime.now()
 	    intervalo = vencimento - now
 	    intervalo = abs(intervalo.days)
+	    if intervalo > 1:
+		intervalo = intervalo + 1
+	    if intervalo == 0:
+	        intervalo = 1
 	    intervalos.append(intervalo)
 
 	df = pd.DataFrame({"ID":ids, "Interval":intervalos, "Model":modelos})

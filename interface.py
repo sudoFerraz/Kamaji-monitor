@@ -33,7 +33,7 @@ while True:
     try:
         forecast_interface.forecast()
     except:
-        pass
+        print "erro"
     os_tools = auxiliary.ostools()
     session = os_tools.db_connection()
     user_handler = auxiliary.user_handler()
@@ -61,7 +61,7 @@ while True:
             interval_list.append(forecast.intervalo)
     label_forecast = pd.DataFrame({'ID':id_list, 'Interval':interval_list, 'Model':model_list})
     label_forecast.to_csv('label_forecast.csv', mode='w', header=True)
-    label_forecast = pd.read_csv('code/ga/0.csv')
+    label_forecast = pd.read_csv('code/ga/1.csv')
     for forecast in forecasts:
         for i in range(0, len(label_forecast)):
             if forecast.id == label_forecast['ID'][i]:

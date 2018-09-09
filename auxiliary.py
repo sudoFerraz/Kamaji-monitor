@@ -257,6 +257,7 @@ class forecast_handler(object):
                 new_forecast['accuracy'] = str(forecast.accuracy)
                 new_forecast['previsao'] = str(forecast.previsao)
                 new_forecast['modelo'] = str(forecast.modelo)
+		new_forecast['id'] = str(forecast.id)
                 new_forecast = json.dumps(new_forecast)
                 forecast_list.append(new_forecast)
             return forecast_list
