@@ -1,0 +1,36 @@
+# Valores padrões necessários
+[DEFAULT]
+Model = svm
+Population = 20
+Generations = 1
+Retain = 0.25
+RandSelect = 0.1
+Mutation = 0.2
+
+# Informações referentes ao SVM:
+# Aqui podem ser encontradas mais informações:
+# http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+[SVM]
+C = 70
+Kernel = rbf
+Degree = 3
+Gamma = auto
+Coef0 = 0.0
+Probability = False
+Shrinking = True
+Tol = 0.001
+Decision = ovr
+Seed = 42
+
+# Informações referentes decision tree:
+# http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
+[DTC]
+Criterion = entropy
+Seed = 42
+
+# Informações sobre a random forrest:
+# http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+[CRF]
+Criterion = entropy
+Seed = 42
+

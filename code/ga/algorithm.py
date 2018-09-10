@@ -6,16 +6,17 @@ import model as mdl
 
 
 class GA:
-    def __init__(self, features, retain=0.25, random_select=0.1, mutation=0.2):
+    def __init__(self, features, configuration, retain=0.25, random_select=0.1, mutation=0.2):
         self.features = features
         self.retain = retain
         self.random_select = random_select
         self.mutation = mutation
+        self.configuration = configuration
 
     def create_population(self, count, model_name):
         pop = []
         for _ in range(count):
-            model = mdl.Model(self.features[_], model_name)
+            model = mdl.Model(self.features[_], model_name, self.configuration)
             pop.append(model)
 
         return pop
@@ -41,7 +42,7 @@ class GA:
             if self.mutation > random.random():
                 features = self.mutate(features)
 
-            model = mdl.Model(features, individual_a.model_name)
+            model = mdl.Model(features, individual_a.model_name, self.configuration)
             model.define_features(features)
 
             children.append(model)

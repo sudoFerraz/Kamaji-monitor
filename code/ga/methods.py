@@ -1,6 +1,10 @@
 import random
 
+from datetime import datetime, timedelta
+import time
+import os
 import algorithm as ga
+import glob
 import numpy as np
 import pandas as pd
 from keras import Sequential
@@ -71,14 +75,16 @@ def predict_values(df, features):
     return df.tail(1)
 
 
-def train_and_score(features, df, y, model_name):
+def train_and_score(features, df, y, model_name, configuration):
     df, x_train, x_test, y_train, y_test, nb_classes = create_dataframe(df, features, y)
     if model_name == 'dtc':
-        model = DecisionTreeClassifier(criterion='entropy', random_state=42)
+        model = DecisionTreeClassifier(criterion=configuration['DTC']['Criterion'],
+                                       random_state=int(configuration['DTC']['Seed']))
         model.fit(x_train, y_train)
         acc = model.score(x_test, y_test)
     elif model_name == 'crf':
-        model = RandomForestClassifier(criterion='entropy', random_state=42)
+        model = RandomForestClassifier(criterion=configuration['CRF']['Criterion'],
+                                       random_state=int(configuration['CRF']['Seed']))
         model.fit(x_test, y_test)
         acc = model.score(x_test, y_test)
     elif model_name == 'nn':
@@ -97,7 +103,17 @@ def train_and_score(features, df, y, model_name):
         cm = confusion_matrix(y_test, y_pred)
         acc = (cm[0][0] + cm[1][1]) / len(y_pred)
     else:
-        model = SVC(kernel='rbf', random_state=42, C=70)
+        model = SVC(C=int(configuration['SVM']['C']),
+                    kernel=configuration['SVM']['Kernel'],
+                    degree=int(configuration['SVM']['Degree']),
+                    gamma=configuration['SVM']['Gamma'],
+                    coef0=float(configuration['SVM']['Coef0']),
+                    probability=bool(configuration['SVM']['Probability']),
+                    shrinking=bool(configuration['SVM']['Shrinking']),
+                    tol=float(configuration['SVM']['Tol']),
+                    decision_function_shape=configuration['SVM']['Decision'],
+                    random_state=int(configuration['SVM']['Seed']),
+                    )
         model.fit(x_train, y_train.values.ravel())
         acc = model.score(x_test, y_test)
 
@@ -112,7 +128,7 @@ def train_models(models, df, y):
             h = model.features[:index]
             t = model.features[index + 1:]
             model.features = h + str(1 - int(model.features[index])) + t
-#        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
+        #        print('\tIndividuo ' + str(i) + ' com features ' + model.features)
         model.train(df, y)
         i += 1
 
@@ -151,13 +167,40 @@ def use_greater_accuracy(df):
     return df
 
 
-def begin(data_csv, df, nb_generations=10, nb_population=20):
+def create_history(info):
+    if not os.path.exists('./history'):
+        try:
+            os.makedirs('./history')
+        except OSError:
+            print('[-] Error while creating directory for history')
+
+    name = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d') + '.csv'
+    info.to_csv(os.path.join('./history/', name))
+
+
+def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None):
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
     df['sugestao'] = pd.Series('null', index=range(len(df)))
 
+    history_info = {
+        'creation_date': list(),
+        'day_interval': list(),
+        'predict': list(),
+        'verified': list(),
+        'answer': list(),
+        'right': list()
+    }
+
     for i in trange(len(df)):
         items = df.iloc[i]
+
+        history_info['creation_date'].append(datetime.fromtimestamp(time.time())
+                                             .strftime('%Y-%m-%d'))
+        history_info['verified'].append(False)
+        history_info['answer'].append(None)
+        history_info['right'].append(False)
+
         interval, model, y = None, None, None
 
         cp_data_csv = data_csv
@@ -168,6 +211,8 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
             if isinstance(interval, np.integer):
                 y = data_csv['close'] - data_csv['close'].shift(-interval)
                 y = y.apply(lambda x: 1 if x > 0.0 else 0)
+
+                history_info['day_interval'].append(interval)
 
                 if interval > 0:
                     cp_data_csv = data_csv[:len(data_csv) - interval]
@@ -191,7 +236,7 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
         if y is not None:
             if len(cp_data_csv) == len(y):
                 population, accuracies = generate(df=cp_data_csv, y=y, nb_generations=nb_generations,
-                                                  nb_population=nb_population, model=model)
+                                                  nb_population=nb_population, model=model, configuration=configuration)
 
                 last_line = predict_values(cp_data_csv, population[0].features)
                 last_line = last_line.values.ravel()
@@ -202,17 +247,25 @@ def begin(data_csv, df, nb_generations=10, nb_population=20):
                 df.at[i, 'accuracy'] = population[0].accuracy
                 df.at[i, 'predict'] = pred
 
+                history_info['predict'].append(1 if pred else 0)
+
             else:
                 print('Data CSV and target with different sizes.')
 
         else:
             print('Could not find values for needed properties.')
 
+    create_history(pd.DataFrame(data=history_info))
 
-def generate(df, y, nb_generations=10, nb_population=20, model='svm'):
+
+def generate(df, y, nb_generations=10, nb_population=20, model='svm', configuration=None):
     df = verify_columns(df)
     features = initial_features(nb_population, len(df.columns.get_values()))
-    optimizer = ga.GA(features)
+    optimizer = ga.GA(features=features,
+                      configuration=configuration,
+                      retain=float(configuration['DEFAULT']['Retain']),
+                      random_select=float(configuration['DEFAULT']['RandSelect']),
+                      mutation=float(configuration['DEFAULT']['Mutation']))
     population = optimizer.create_population(nb_population, model)
     generations_accuracies = {}
     _ = 0
@@ -228,3 +281,55 @@ def generate(df, y, nb_generations=10, nb_population=20, model='svm'):
         population = sorted(population, key=lambda m: m.accuracy, reverse=True)
 
     return population, generations_accuracies
+
+
+def get_values_n_days_ago(interval):
+    df = pd.read_csv('../../datasets/USDBRL/all_indicators.csv')
+
+    row = df.iloc[-interval]
+    return row['open'], row['close']
+
+
+def delete_verified_history(names):
+    map(os.remove, names)
+
+
+def verify_past_predictions():
+    if os.path.exists('./history'):
+        recent_predictions_names = glob.glob('./history/*.csv')
+    else:
+        recent_predictions_names = list()
+
+    print('[+] Verifying past predictions')
+    _, yesterday_close = get_values_n_days_ago(1)
+    dataframes_to_delete = list()
+
+    with open('results.csv', 'a', newline='') as results:
+        for name in recent_predictions_names:
+            predicted_csv = pd.read_csv(name)
+
+            for index in range(len(predicted_csv)):
+                row = predicted_csv.loc[index]
+
+                day_interval = int(row['day_interval'])
+
+                string_day = (datetime.today() - timedelta(days=day_interval)) \
+                    .strftime('%Y-%m-%d')
+
+                if row['creation_date'] == string_day and not bool(row['verified']):
+                    interval_opening, _ = get_values_n_days_ago(day_interval)
+                    answer = 1 if interval_opening - yesterday_close > 0 else 0
+
+                    predicted_csv.at[index, 'answer'] = answer
+                    predicted_csv.at[index, 'right'] = int(row['predict']) == answer
+                    predicted_csv.at[index, 'verified'] = True
+
+                    results.write(string_day + ',' + str(day_interval) + ',' +
+                                  str(row['predict']) + ',' + str(answer))
+
+            if predicted_csv['verified'].eq(True).all():
+                dataframes_to_delete.append(name)
+
+            predicted_csv.to_csv(name, index=False)
+
+    delete_verified_history(dataframes_to_delete)
