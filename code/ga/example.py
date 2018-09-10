@@ -28,6 +28,7 @@ if __name__ == '__main__':
     # y = y.shift(-1)
 
     y_regress = y
+
     y_regress = y_regress.fillna(method='ffill')
     y_regress = np.array(y_regress)
     y_regress = y_regress.reshape(-1, 1)
