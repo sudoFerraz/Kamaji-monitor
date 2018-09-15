@@ -1,4 +1,7 @@
 .idea/
 __pycache__/
 .pyc
-
+history/
+results.csv
+dataframes/
+venv/

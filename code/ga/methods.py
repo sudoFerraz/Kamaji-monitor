@@ -167,18 +167,18 @@ def use_greater_accuracy(df):
     return df
 
 
-def create_history(info):
+def create_history(info, suffix):
     if not os.path.exists('./history'):
         try:
             os.makedirs('./history')
         except OSError:
             print('[-] Error while creating directory for history')
 
-    name = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d') + '.csv'
+    name = '{0}-{1}.csv'.format(datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d'), suffix)
     info.to_csv(os.path.join('./history/', name))
 
 
-def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None):
+def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None, suffix=''):
     df['accuracy'] = pd.Series()
     df['predict'] = pd.Series()
     df['sugestao'] = pd.Series('null', index=range(len(df)))
@@ -255,7 +255,7 @@ def begin(data_csv, df, nb_generations=10, nb_population=20, configuration=None)
         else:
             print('Could not find values for needed properties.')
 
-    create_history(pd.DataFrame(data=history_info))
+    create_history(pd.DataFrame(data=history_info), suffix)
 
 
 def generate(df, y, nb_generations=10, nb_population=20, model='svm', configuration=None):
@@ -304,32 +304,41 @@ def verify_past_predictions():
     _, yesterday_close = get_values_n_days_ago(1)
     dataframes_to_delete = list()
 
-    with open('results.csv', 'a', newline='') as results:
-        for name in recent_predictions_names:
-            predicted_csv = pd.read_csv(name)
+    results = pd.read_csv('results.csv')
 
-            for index in range(len(predicted_csv)):
-                row = predicted_csv.loc[index]
+    for name in recent_predictions_names:
+        predicted_csv = pd.read_csv(name)
 
-                day_interval = int(row['day_interval'])
+        for index in range(len(predicted_csv)):
+            row = predicted_csv.loc[index]
 
-                string_day = (datetime.today() - timedelta(days=day_interval)) \
-                    .strftime('%Y-%m-%d')
+            day_interval = int(row['day_interval'])
 
-                if row['creation_date'] == string_day and not bool(row['verified']):
-                    interval_opening, _ = get_values_n_days_ago(day_interval)
-                    answer = 1 if interval_opening - yesterday_close > 0 else 0
+            string_day = (datetime.today() - timedelta(days=day_interval)) \
+                .strftime('%Y-%m-%d')
 
-                    predicted_csv.at[index, 'answer'] = answer
-                    predicted_csv.at[index, 'right'] = int(row['predict']) == answer
-                    predicted_csv.at[index, 'verified'] = True
+            if row['creation_date'] == string_day and not bool(row['verified']):
+                print('[+] Date match, verifying predict')
 
-                    results.write(string_day + ',' + str(day_interval) + ',' +
-                                  str(row['predict']) + ',' + str(answer))
+                interval_opening, _ = get_values_n_days_ago(day_interval)
+                answer = 1 if interval_opening - yesterday_close > 0 else 0
 
-            if predicted_csv['verified'].eq(True).all():
-                dataframes_to_delete.append(name)
+                predicted_csv.at[index, 'answer'] = answer
+                predicted_csv.at[index, 'right'] = int(row['predict']) == answer
+                predicted_csv.at[index, 'verified'] = True
 
-            predicted_csv.to_csv(name, index=False)
+                values = {
+                    'predicted_day': string_day,
+                    'interval': int(day_interval),
+                    'predict': int(row['predict']),
+                    'real_value': int(answer)
+                }
+                results = results.append(values, ignore_index=True)
+                results.to_csv('results.csv', index=False)
+
+        if predicted_csv['verified'].eq(True).all():
+            dataframes_to_delete.append(name)
+
+        predicted_csv.to_csv(name, index=False)
 
     delete_verified_history(dataframes_to_delete)

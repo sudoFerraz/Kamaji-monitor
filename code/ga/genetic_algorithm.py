@@ -27,7 +27,7 @@ def calc_with_interval(data_csv, info_csv, nb_generations=10, nb_population=20, 
         for name in name_list:
             info_csv[name].name = str(name)
             methods.begin(data_csv=data_csv, df=info_csv[name], nb_generations=nb_generations,
-                          nb_population=nb_population, configuration=configuration)
+                          nb_population=nb_population, configuration=configuration, suffix=name)
 
         for k in range(len(info_csv)):
             pivot_df = info_csv[k]
