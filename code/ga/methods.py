@@ -290,8 +290,8 @@ def get_values_n_days_ago(interval):
     return row['open'], row['close']
 
 
-def delete_verified_history(names):
-    map(os.remove, names)
+def delete_verified_history(name):
+    os.remove(name)
 
 
 def verify_past_predictions():
@@ -302,7 +302,6 @@ def verify_past_predictions():
 
     print('[+] Verifying past predictions')
     _, yesterday_close = get_values_n_days_ago(1)
-    dataframes_to_delete = list()
 
     results = pd.read_csv('results.csv')
 
@@ -337,8 +336,7 @@ def verify_past_predictions():
                 results.to_csv('results.csv', index=False)
 
         if predicted_csv['verified'].eq(True).all():
-            dataframes_to_delete.append(name)
+            print('[+] History dataframe {} all avaliated, will be deleted'.format(name))
+            delete_verified_history(name)
 
         predicted_csv.to_csv(name, index=False)
-
-    delete_verified_history(dataframes_to_delete)
