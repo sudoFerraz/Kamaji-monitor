@@ -45,6 +45,7 @@ action_handler = auxiliary.action_handler()
 invoice_handler = auxiliary.invoice_handler()
 indicator_handler = auxiliary.indicator_handler()
 strategy_type_handler = auxiliary.strategy_type_handler()
+log_handler = auxiliary.log_handler()
 
 @app.teardown_request
 def app_teardown(response_or_exc):
@@ -95,6 +96,7 @@ def login(email, password):
     if request.method == 'GET':
         found = user_handler.verify_user(session, email, password)
         if not found:
+            log_handler.log_login(email, False)
             return "erro"
         if found:
             req = {}
@@ -102,6 +104,7 @@ def login(email, password):
             req['name'] = found.name
             req['usertype'] = found.usertype
             req = json.dumps(req)
+            log_handler.log_login(email, True)
             return str(req)
 
 @app.route('/register/<string:email>/<string:password>', methods=['GET'])
@@ -110,8 +113,10 @@ def register(email, password):
     if request.method == 'GET':
         found = user_handler.create_user(session, email, password, "normal", email)
         if not found:
+            log_handler.log_register(email, False)
             return "erro"
         else:
+            log_handler.log_register(email, True)
             return "ok"
 
 @app.route('/reset/<string:email>/<string:newpass>', methods=['GET'])
@@ -120,8 +125,10 @@ def password_reset(email, newpass):
     if request.method == 'GET':
         found = user_handler.change_password(session, email, newpass)
         if not found:
+            log_handler.log_register(email, False)
             return "erro, email nao encontrado"
         else:
+            log_handler.log_register(email, True)
             return str(found)
 
 
@@ -147,8 +154,12 @@ def delete_contact(email, user_id):
     if request.method == 'GET':
         try:
             contact_handler.delete_contact(session, email)
+            user_email = user_handler.get_email_by_id(session, user_id)
+            log_handler.log_delete_contact(email, user_email, True)
             return "OK"
         except:
+            user_email = user_handler.get_email_by_id(session, user_id)
+            log_handler.log_delete_contact(email, user_email, False)
             return "ERRO"
 
 
@@ -157,7 +168,9 @@ type_handler = auxiliary.type_handler()
 @app.route('/invoice/delete/<string:invoice_id>/<int:user_id>')
 @cross_origin()
 def delete_invoice(invoice_id, user_id):
+    user_email = user_handler.get_email_by_id(session, user_id)
     invoice_handler.delete_invoice(session, invoice_id)
+    log_handler.log_delete_invoice(user_email, invoice_id)
     return "ok"
 
 @app.route('/invoice/notification/activate/<string:invoice_id>')
@@ -171,8 +184,12 @@ def register_contact(name, email, phone, user_id):
     if request.method == 'GET':
         try:
             new_contact = contact_handler.create_contact(session, name, email, phone)
+            user_email = user_handler.get_email_by_id(session, user_id)
+            log_handler.log_register_contact(user_email, email, True)
             return "OK"
         except:
+            user_email = user_handler.get_email_by_id(session, user_id)
+            log_handler.log_register_contact(user_email, email, False)
             return "ERRO"
 
 
@@ -310,8 +327,12 @@ def update_invoice(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, f
     if request.method == 'GET':
         try:
             invoice_handler.update_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
+            user_email = user_handler.get_email_by_id(session, user_id)
+            log_handler.log_update_invoice(user_email, nro_invoice, True)
             return "OK"
         except:
+            user_email = user_handler.get_email_by_id(session, user_id)
+            log_handler.log_update_invoice(user_email, nro_invoice, False)
             return "ERRO"
 
 
@@ -336,6 +357,8 @@ def invoice_geatll():
 def invoice_register(nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao, user_id):
     if request.method == 'GET':
         invoice_handler.create_invoice(session, nro_invoice, resp_invoice, tipo, dt_emissao, dt_vencimento, fornecedor, valor_invoice, dolar_provisao, observacao)
+        user_email = user_handler.get_email_by_id(session, user_id)
+        log_handler.log_register_invoice(user_email, nro_invoice)
         return "ok"
 
 @app.route('/strategy/setindicatordays/<int:indicator_id>/<int:newday>')

@@ -11,6 +11,7 @@ import pandas_datareader as web
 import pandas as pd
 from model import Users, Raw_data, Signal, Notification, Action, Indicator, Invoice, Contact, Strategy
 import model
+import datetime as dt
 
 
 
@@ -39,6 +40,8 @@ class strategy_type_handler(object):
         session.commit()
         session.flush()
         return strategy
+
+
 
 class user_handler(object):
 
@@ -81,6 +84,13 @@ class user_handler(object):
         deleteduser = session.query(model.Users).filter_by(id=userid).delete()
         session.commit()
         session.flush()
+
+    def get_email_by_id(self, session, searchid):
+    	founduser = session.query(model.Users).filter_by(id=searchid).first()
+    	if not founduser:
+    		return False
+    	else:
+    		return founduser.email
 
     def get_user(self, session, searchemail):
         founduser = session.query(model.Users).filter_by(email=searchemail).first()
@@ -764,3 +774,112 @@ class indicator_handler(object):
             session.commit()
             session.flush()
             return found_indicator
+
+
+class log_handler(object):
+	def __init__(self):
+		self.log_file = pd.read_csv('log_file.csv', encoding='utf-8')
+
+	def create_log(self):
+		col_names = ['DateTime', 'Action', 'User', 'Details']
+		log_file = pd.DataFrame(columns = col_names)
+		self.log_file = log_file
+		log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+	def log_login(self, user_email, success):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Login', 'User': user_email, 'Details': 'Login realizado com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Login', 'User': user_email, 'Details': 'Falha no login'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			#self.log_file = pd.concat([self.log_file, new_log], axis=0)
+			#self.log_file.loc[len(self.log_file)+1] = new_log
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+		
+
+	def log_register(self, user_email, success):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Register', 'User': user_email, 'Details': 'Registro feito com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Register', 'User': user_email, 'Details': 'Erro no registro'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+		
+
+	def log_reset_password(self, user_email, success):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Password reset', 'User': user_email, 'Details': 'Reset de senha com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Password reset', 'User': user_email, 'Details': 'Erro no reset de senha'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+	
+
+	def log_delete_contact(self, deleted_email, user_email, success):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Delete Contact', 'User': user_email, 'Details': 'Deletado o email ' + str(deleted_email) + ' com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Delete Contact', 'User': user_email, 'Details': 'Erro ao deletar o email ' + str(deleted_email)}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+
+	def log_delete_invoice(self, user_email, deleted_invoice_id):
+		new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Delete Invoice', 'User': user_email, 'Details': 'Deletada a invoice' + str(deleted_invoice_id) + 'com sucesso'}
+		self.log_file = self.log_file.append(new_log, ignore_index=True)
+		self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+	def log_register_contact(self, user_email, registered_email, success):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Register Contact', 'User': user_email, 'Details': 'Registrado o contato ' + str(registered_email) + ' com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Register Contact', 'User': user_email, 'Details': 'Erro ao registrar o contato ' + str(registered_email)}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+
+	def log_update_invoice(self, user_email, invoice_updated_nro, success):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Update Invoice', 'User': user_email, 'Details': 'Atualizada a invoice ' + str(invoice_updated_nro) + ' com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Update Invoice', 'User': user_email, 'Details': 'Erro ao atualizar a invoice ' + str(invoice_updated_nro)}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+	def log_register_invoice(self, user_email, invoice_registered_nro):
+		if success == True:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Register Invoice', 'User': user_email, 'Details': 'Registrada a invoice ' + str(invoice_registered_nro) + ' com sucesso'}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+		else:
+			new_log = {'DateTime': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'Action': 'Register Invoice', 'User': user_email, 'Details': 'Erro ao registrar a invoice ' + str(invoice_registered_nro)}
+			self.log_file = self.log_file.append(new_log, ignore_index=True)
+			self.log_file.to_csv('log_file.csv', mode='w', header=True, index=False)
+
+
+
+
+
