@@ -13,7 +13,7 @@ class CSV(Base):
     __tablename__ = 'CSVs'
     id = Column(Integer, primary_key=True)
     csv_file = Column(LargeBinary)
-    csv_name = Column(String)
+    csv_name = Column(String(99))
 """
 class Relatorios(Base):
     __tablename__ = 'Relatorios'
@@ -32,10 +32,10 @@ class Users(Base):
 
     __tablename__ = 'Users'
     id = Column(Integer, primary_key=True)
-    email = Column(String)
-    name = Column(String)
-    password = Column(String)
-    usertype = Column(String)
+    email = Column(String(99))
+    name = Column(String(99))
+    password = Column(String(99))
+    usertype = Column(String(99))
 
 
 class Raw_data(Base):
@@ -56,7 +56,7 @@ class Sugestion(Base):
 
     __tablename__ = "Sugestion"
     id = Column(Integer, primary_key=True)
-    sugestion = Column(String)
+    sugestion = Column(String(99))
     invoice_id = Column(Integer)
     sugestion_date = Column(DateTime, server_default=func.now())
 
@@ -72,9 +72,9 @@ class Notification(Base):
 
     __tablename__ = "Notification"
     id = Column(Integer, primary_key=True)
-    platform = Column(String)
+    platform = Column(String(99))
     date = Column(DateTime, server_default=func.now())
-    message = Column(String)
+    message = Column(String(99))
 
 class Forecast(Base):
 
@@ -83,41 +83,41 @@ class Forecast(Base):
     intervalo = Column(Integer)
     accuracy = Column(Float)
     previsao = Column(Integer)
-    modelo = Column(String)
-    invoice_id = Column(String)
+    modelo = Column(String(99))
+    invoice_id = Column(String(99))
 
 class Invoice(Base):
 
     __tablename__ = "Invoice"
     id = Column(Integer, primary_key=True)
-    nro_invoice = Column(String)
-    resp_invoice = Column(String)
-    tipo = Column(String)
-    dt_emissao = Column(String)
-    dt_vencimento = Column(String)
-    dt_pagamento = Column(String)
-    fornecedor = Column(String)
+    nro_invoice = Column(String(99))
+    resp_invoice = Column(String(99))
+    tipo = Column(String(99))
+    dt_emissao = Column(String(99))
+    dt_vencimento = Column(String(99))
+    dt_pagamento = Column(String(99))
+    fornecedor = Column(String(99))
     valor_invoice = Column(Float)
     dolar_provisao = Column(Float)
     dolar_pagamento = Column(Float)
     valor_pago = Column(Float)
-    status = Column(String)
-    observacao = Column(String)
+    status = Column(String(99))
+    observacao = Column(String(300))
     imposto = Column(Float)
 
 class Contact(Base):
 
     __tablename__ = "Contact"
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String)
-    phone = Column(String)
+    name = Column(String(99))
+    email = Column(String(99))
+    phone = Column(String(99))
 
 
 class Indicator(Base):
     __tablename__ = "Indicator"
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String(99))
     date = Column(DateTime, server_default=func.now())
     value = Column(Float)
 
@@ -138,12 +138,12 @@ class Action(Base):
     date_time = Column(DateTime, server_default=func.now())
     performed_by = Column(Integer, ForeignKey(Users.id))
     invoice_acted = Column(Integer, ForeignKey(Invoice.id))
-    action_type = Column(String)
+    action_type = Column(String(99))
     notification_acted = Column(Integer, ForeignKey(Notification.id))
     strategy_acted = Column(Integer, ForeignKey(Strategy.id))
 
 
 
-engine = create_engine('postgresql://postgres:postgres@localhost/postgres')
+engine = create_engine('mysql+pymysql://kamaji_user:kamaji2018@localhost/kamaji')
 Session = sessionmaker(bind=engine)
 Base.metadata.create_all(engine)

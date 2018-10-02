@@ -25,8 +25,8 @@ import requests
 app = Flask(__name__, template_folder='')
 cors = CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/postgres'
-app.config['SECRET_KEY'] = 'postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://kamaji_user:kamaji2018@localhost/kamaji'
+app.config['SECRET_KEY'] = 'kamaji2018'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 db = SQLAlchemy(app)

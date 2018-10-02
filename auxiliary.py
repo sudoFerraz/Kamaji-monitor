@@ -26,7 +26,7 @@ class ostools(object):
         os.system('sudo apt-get upgrade')
 
     def db_connection(self):
-        engine = create_engine('postgresql://postgres:postgres@localhost/postgres')
+        engine = create_engine('mysql+pymysql://kamaji_user:kamaji2018@localhost/kamaji')
         Session = scoped_session(sessionmaker())
         Session.configure(bind=engine)
         session = Session
