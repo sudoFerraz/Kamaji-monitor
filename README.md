@@ -1,2 +1,2 @@
 # Kamaji
-#### Documentation provided in IPython Notebook - Algar Kamaji Documentation
+#### Documentation provided in IPython Notebook - Kamaji Documentation
