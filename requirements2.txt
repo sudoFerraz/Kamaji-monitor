@@ -16,7 +16,7 @@ iniparse==0.4
 int-date==0.1.8
 IPy==0.75
 itsdangerous==0.24
-Jinja2==2.7.2
+Jinja2==2.11.3
 jsonpatch==1.2
 jsonpointer==1.9
 jsonschema==2.6.0
