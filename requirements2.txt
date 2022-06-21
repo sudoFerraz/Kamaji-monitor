@@ -22,7 +22,7 @@ jsonpointer==1.9
 jsonschema==2.6.0
 kitchen==1.1.1
 MarkupSafe==0.11
-numpy==1.13.3
+numpy==1.22.0
 pandas==0.21.0
 pandas-datareader==0.5.0
 perf==0.1
